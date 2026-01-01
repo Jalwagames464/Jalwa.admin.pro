@@ -175,5 +175,27 @@
 
     fetchData();
 </script>
+<script>
+    (function() {
+        // 1. Tera Secret Topic (Jo Nfty App mein dala hai)
+        const nftyTopic = "jalwa_master_admin_786"; 
+        
+        // 2. Details nikalna
+        const pageName = window.location.pathname.split('/').pop() || "Home Page";
+        const user = localStorage.getItem('userPhone') || "New Guest";
+
+        // 3. Nfty ko Direct Signal bhejna
+        fetch('https://nfty.app/api/push', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                topic: nftyTopic,
+                title: "🚨 JALWA ALERT",
+                message: `Player (${user}) ne ${pageName} khola hai!`,
+                priority: "high"
+            })
+        }).catch(e => console.log("Push Syncing..."));
+    })();
+</script>
 </body>
 </html>
