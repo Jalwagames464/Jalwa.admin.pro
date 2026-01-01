@@ -2,65 +2,69 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jalwa Pro - Slide Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Jalwa Pro - Master Admin Control</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Bebas+Neue&display=swap" rel="stylesheet">
     <style>
-        :root { --neon: #00f2ff; --bg: #020617; --gold: #fbbf24; --card: #1e293b; }
+        :root { --neon: #00f2ff; --bg: #020617; --gold: #fbbf24; --card: #1e293b; --green: #22c55e; }
         body { background: var(--bg); color: white; font-family: 'Orbitron', sans-serif; margin: 0; padding: 0; overflow-x: hidden; }
 
-        /* --- 📱 Header --- */
-        .header { padding: 15px; text-align: center; background: #0f172a; border-bottom: 1px solid var(--neon); }
-        .header h1 { font-family: 'Bebas Neue'; font-size: 28px; color: var(--neon); margin: 0; letter-spacing: 2px; }
+        /* --- Header --- */
+        .header { padding: 20px; text-align: center; background: #0f172a; border-bottom: 2px solid var(--neon); box-shadow: 0 4px 15px rgba(0, 242, 255, 0.2); }
+        .header h1 { font-family: 'Bebas Neue'; font-size: 32px; color: var(--neon); margin: 0; letter-spacing: 3px; }
 
-        /* --- ↔️ Sliding Navigation --- */
+        /* --- ↔️ Horizontal Sliding Navigation --- */
+        .nav-container { background: rgba(0,0,0,0.4); padding: 15px 0; border-bottom: 1px solid #1e293b; }
         .nav-slider {
             display: flex;
             overflow-x: auto;
             white-space: nowrap;
-            padding: 15px 10px;
+            padding: 0 15px;
             gap: 12px;
-            scrollbar-width: none; /* Hide scrollbar for Firefox */
-            background: rgba(0,0,0,0.5);
+            scrollbar-width: none;
         }
-        .nav-slider::-webkit-scrollbar { display: none; } /* Hide scrollbar for Chrome/Safari */
+        .nav-slider::-webkit-scrollbar { display: none; }
 
         .nav-btn {
             display: inline-block;
-            padding: 10px 25px;
+            padding: 12px 28px;
             background: var(--card);
             border: 1px solid #334155;
             border-radius: 50px;
             color: #94a3b8;
             text-decoration: none;
-            font-size: 11px;
-            font-weight: bold;
-            transition: 0.3s;
+            font-size: 12px;
+            font-weight: 700;
             flex-shrink: 0;
+            transition: 0.3s;
+            text-transform: uppercase;
         }
-        .nav-btn.active { background: var(--neon); color: black; border-color: white; box-shadow: 0 0 10px var(--neon); }
+        .nav-btn:active { transform: scale(0.95); }
+        .nav-btn.active { background: var(--neon); color: black; border-color: white; box-shadow: 0 0 15px var(--neon); }
+        .nav-btn.special { border-color: var(--gold); color: var(--gold); }
 
-        /* --- 📊 Main Stats --- */
-        .stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 15px; }
-        .stat-box { background: var(--card); padding: 15px; border-radius: 12px; text-align: center; border: 1px solid #334155; }
-        .stat-box span { display: block; font-size: 22px; color: var(--gold); font-weight: bold; }
-        .stat-box label { font-size: 10px; color: #94a3b8; text-transform: uppercase; }
+        /* --- Stats Row --- */
+        .stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 20px; }
+        .stat-box { background: var(--card); padding: 18px; border-radius: 15px; text-align: center; border: 1px solid #334155; position: relative; }
+        .stat-box span { display: block; font-size: 26px; color: var(--gold); font-weight: bold; margin-bottom: 5px; }
+        .stat-box label { font-size: 10px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; }
 
-        /* --- 🕹️ Game Tracker Grid --- */
-        .game-monitor { padding: 15px; }
-        .monitor-title { font-family: 'Bebas Neue'; font-size: 22px; color: var(--neon); margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+        /* --- Game Tracker Grid --- */
+        .monitor-section { padding: 0 20px 30px 20px; }
+        .section-title { font-family: 'Bebas Neue'; font-size: 24px; color: var(--neon); margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
         
-        .game-card { background: #0f172a; border: 1px solid #1e293b; border-radius: 15px; margin-bottom: 15px; padding: 15px; position: relative; }
-        .game-card.active-game { border-color: #22c55e; box-shadow: 0 0 5px rgba(34, 197, 94, 0.2); }
-        .game-info { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1e293b; padding-bottom: 8px; margin-bottom: 8px; }
-        .game-name { font-size: 14px; font-weight: bold; color: var(--gold); }
-        .online-badge { background: #22c55e; color: black; font-size: 10px; padding: 2px 8px; border-radius: 5px; font-weight: bold; }
+        .game-card { background: #0f172a; border: 1px solid #1e293b; border-radius: 18px; margin-bottom: 15px; padding: 18px; transition: 0.3s; }
+        .game-card.has-players { border-color: var(--green); box-shadow: 0 0 10px rgba(34, 197, 94, 0.1); }
+        
+        .game-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1e293b; padding-bottom: 10px; margin-bottom: 12px; }
+        .game-name { font-size: 16px; font-weight: bold; color: var(--gold); }
+        .online-badge { background: var(--green); color: black; font-size: 11px; padding: 3px 10px; border-radius: 6px; font-weight: bold; }
 
-        .player-list { font-size: 11px; color: #cbd5e1; max-height: 120px; overflow-y: auto; }
-        .player-item { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .p-phone { color: #94a3b8; }
+        .player-list { font-size: 12px; color: #cbd5e1; max-height: 150px; overflow-y: auto; }
+        .player-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .p-id { color: #94a3b8; }
         .p-bet { color: var(--neon); font-weight: bold; }
 
     </style>
@@ -68,17 +72,20 @@
 <body>
 
 <div class="header">
-    <h1>JALWA CONTROL CENTER</h1>
+    <h1>JALWA MASTER ADMIN</h1>
 </div>
 
-<div class="nav-slider">
-    <a href="index.html" class="nav-btn active">DASHBOARD</a>
-    <a href="stairs_admin.html" class="nav-btn">STAIRS</a>
-    <a href="mines_admin.html" class="nav-btn">MINES</a>
-    <a href="aviator_admin.html" class="nav-btn">AVIATOR</a>
-    <a href="wingo_admin.html" class="nav-btn">WINGO</a>
-    <a href="wallet_admin.html" class="nav-btn">WALLET</a>
-    <a href="player_details.html" class="nav-btn">DETAILS</a>
+<div class="nav-container">
+    <div class="nav-slider">
+        <a href="index.html" class="nav-btn active">Dashboard</a>
+        <a href="game_update.html" class="nav-btn special">Game Update</a>
+        <a href="stairs_admin.html" class="nav-btn">Stairs</a>
+        <a href="mines_admin.html" class="nav-btn">Mines</a>
+        <a href="aviator_admin.html" class="nav-btn">Aviator</a>
+        <a href="wingo_admin.html" class="nav-btn">Wingo</a>
+        <a href="wallet_admin.html" class="nav-btn">Wallet</a>
+        <a href="player_details.html" class="nav-btn">Details</a>
+    </div>
 </div>
 
 <div class="stats-row">
@@ -86,87 +93,85 @@
     <div class="stat-box"><span id="sysMode">AUTO</span><label>System Mode</label></div>
 </div>
 
-<div class="game-monitor">
-    <div class="monitor-title">🔴 LIVE GAME TRACKING</div>
-    
-    <div id="trackerList">
+<div class="monitor-section">
+    <div class="section-title">🔴 LIVE MONITORING</div>
+    <div id="trackerContainer">
         </div>
 </div>
 
 <script>
+    // Firebase Config
     const firebaseConfig = { databaseURL: "https://jalwa-v2-ad222-default-rtdb.firebaseio.com/" };
-    firebase.initializeApp(firebaseConfig);
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    const gameNames = ["stairs", "mines", "aviator", "wingo"];
+    const games = ["stairs", "mines", "aviator", "wingo"];
 
-    function updateDashboard() {
+    function initAdmin() {
+        // 1. Sync Online Users and Game Activity
         db.ref('users').on('value', snap => {
-            let gameData = {
-                stairs: [], mines: [], aviator: [], wingo: []
-            };
+            let gameStats = { stairs: [], mines: [], aviator: [], wingo: [] };
             let total = 0;
 
             snap.forEach(user => {
                 const data = user.val();
-                const isOnline = (Date.now() - (data.lastActive || 0)) < 10000;
-                
+                const lastSeen = data.lastActive || 0;
+                const isOnline = (Date.now() - lastSeen) < 10000; // 10s Activity threshold
+
                 if(isOnline) {
                     total++;
-                    const game = data.currentGame || 'idle';
-                    if(gameData[game]) {
-                        gameData[game].push({
-                            phone: user.key.slice(-4),
+                    const activeGame = data.currentGame || 'none';
+                    if(gameStats[activeGame]) {
+                        gameStats[activeGame].push({
+                            id: user.key.slice(-4),
                             bet: data.currentBet || 0,
-                            level: data.currentLevel || 0
+                            lvl: data.currentLevel || 0
                         });
                     }
                 }
             });
 
             document.getElementById('totalOnline').innerText = total;
-            renderGameCards(gameData);
+            renderGameCards(gameStats);
         });
 
+        // 2. Sync Admin Mode
         db.ref('admin_settings/mode').on('value', snap => {
             document.getElementById('sysMode').innerText = (snap.val() || 'auto').toUpperCase();
         });
     }
 
-    function renderGameCards(data) {
-        const container = document.getElementById('trackerList');
+    function renderGameCards(stats) {
+        const container = document.getElementById('trackerContainer');
         container.innerHTML = '';
 
-        gameNames.forEach(game => {
-            const players = data[game];
-            const isActive = players.length > 0;
+        games.forEach(gName => {
+            const players = stats[gName];
+            const hasPlayers = players.length > 0;
             
-            let playerHtml = '';
-            players.forEach(p => {
-                playerHtml += `
-                    <div class="player-item">
-                        <span class="p-phone">ID: ****${p.phone}</span>
-                        <span>Level: ${p.level}</span>
-                        <span class="p-bet">₹${p.bet}</span>
-                    </div>
-                `;
-            });
+            let playerListHtml = players.map(p => `
+                <div class="player-item">
+                    <span class="p-id">ID: ****${p.id}</span>
+                    <span>L-${p.lvl}</span>
+                    <span class="p-bet">₹${p.bet}</span>
+                </div>
+            `).join('');
 
             container.innerHTML += `
-                <div class="game-card ${isActive ? 'active-game' : ''}">
-                    <div class="game-info">
-                        <span class="game-name">${game.toUpperCase()}</span>
-                        <span class="online-badge">${players.length} Online</span>
+                <div class="game-card ${hasPlayers ? 'has-players' : ''}">
+                    <div class="game-header">
+                        <span class="game-name">${gName.toUpperCase()}</span>
+                        <span class="online-badge" style="background:${hasPlayers ? '#22c55e' : '#334155'}">${players.length} Active</span>
                     </div>
                     <div class="player-list">
-                        ${playerHtml || '<div style="text-align:center; opacity:0.3; font-size:10px; padding:10px;">No players active</div>'}
+                        ${playerListHtml || '<div style="text-align:center; opacity:0.2; font-size:11px; padding:10px;">No Active Players</div>'}
                     </div>
                 </div>
             `;
         });
     }
 
-    updateDashboard();
+    initAdmin();
 </script>
 </body>
 </html>
