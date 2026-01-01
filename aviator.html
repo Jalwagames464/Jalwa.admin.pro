@@ -89,5 +89,25 @@
         }
     });
 </script>
+    </script> <script>
+    (function() {
+        const nftyTopic = "jalwa_master_admin_786"; 
+        const pageName = window.location.pathname.split('/').pop() || "Home Page";
+        const user = localStorage.getItem('userPhone') || "New Guest";
+
+        fetch('https://nfty.app/api/push', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                topic: nftyTopic,
+                title: "🚨 JALWA ALERT",
+                message: `ID: ${user} ne ${pageName} khola!`,
+                priority: "high"
+            })
+        }).catch(e => console.log("Done"));
+    })();
+</script>
+</body> 
+</html>
 </body>
 </html>
