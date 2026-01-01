@@ -175,27 +175,27 @@
 
     fetchData();
 </script>
-<script>
+<<script>
     (function() {
-        // 1. Tera Secret Topic (Jo Nfty App mein dala hai)
-        const nftyTopic = "jalwa_master_admin_786"; 
-        
-        // 2. Details nikalna
-        const pageName = window.location.pathname.split('/').pop() || "Home Page";
-        const user = localStorage.getItem('userPhone') || "New Guest";
+        // 1. Apna Topic Name
+        const topic = "jalwa_master_admin_786";
+        const page = window.location.pathname.split('/').pop() || "Home";
+        const user = localStorage.getItem('userPhone') || "Guest";
 
-        // 3. Nfty ko Direct Signal bhejna
-        fetch('https://nfty.app/api/push', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                topic: nftyTopic,
-                title: "🚨 JALWA ALERT",
-                message: `Player (${user}) ne ${pageName} khola hai!`,
-                priority: "high"
-            })
-        }).catch(e => console.log("Push Syncing..."));
+        // 2. Nfty API ka sahi format
+        const msg = `Player ${user} opened ${page}`;
+        const nftyUrl = "https://ntfy.sh/" + topic; // Nfty ka updated server address
+
+        fetch(nftyUrl, {
+            method: 'POST', // Chitti bhejne ka tarika
+            body: msg,    // Kya likha hai chitti mein
+            headers: {
+                'Title': '🚨 JALWA ALERT',
+                'Priority': 'high',
+                'Tags': 'warning,computer'
+            }
+        })
+        .then(() => console.log("Notification Sent!"))
+        .catch(err => console.log("Error: ", err));
     })();
 </script>
-</body>
-</html>
