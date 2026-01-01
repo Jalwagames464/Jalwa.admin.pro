@@ -175,27 +175,23 @@
 
     fetchData();
 </script>
-<<script>
+<script>
     (function() {
-        // 1. Apna Topic Name
-        const topic = "jalwa_master_admin_786";
+        const topic = "jalwa_master_admin_786"; // Jo aapne photo 2 mein khola hai
         const page = window.location.pathname.split('/').pop() || "Home";
         const user = localStorage.getItem('userPhone') || "Guest";
 
-        // 2. Nfty API ka sahi format
-        const msg = `Player ${user} opened ${page}`;
-        const nftyUrl = "https://ntfy.sh/" + topic; // Nfty ka updated server address
-
-        fetch(nftyUrl, {
-            method: 'POST', // Chitti bhejne ka tarika
-            body: msg,    // Kya likha hai chitti mein
+        // ntfy.sh ke liye seedha POST method use hota hai
+        fetch('https://ntfy.sh/' + topic, {
+            method: 'POST',
+            body: `🚨 JALWA ALERT: Player (${user}) ne ${page} khola hai!`,
             headers: {
-                'Title': '🚨 JALWA ALERT',
-                'Priority': 'high',
-                'Tags': 'warning,computer'
+                'Title': 'Jalwa Admin Notification',
+                'Priority': '5', // 5 matlab sabse loud sound
+                'Tags': 'warning,loudspeaker'
             }
         })
         .then(() => console.log("Notification Sent!"))
-        .catch(err => console.log("Error: ", err));
+        .catch(e => console.error("Error sending push:", e));
     })();
 </script>
