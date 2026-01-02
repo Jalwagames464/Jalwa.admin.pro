@@ -38,11 +38,11 @@
         .d-row { display: flex; justify-content: space-between; font-size: 12px; }
         .label { color: #7e87a8; }
         .val { color: #fff; font-weight: 500; }
-        .val-highlight { color: #ffc107; font-weight: bold; font-size: 13px; } /* UPI Chamkega */
+        .val-highlight { color: #ffc107; font-weight: bold; font-size: 13px; }
 
         .amt-tag { font-size: 22px; font-weight: 900; color: #00ffca; text-align: right; margin-top: 10px; display: block; }
 
-        /* Action Buttons on Card */
+        /* Action Buttons */
         .card-btns { display: flex; gap: 10px; margin-top: 15px; }
         .btn-card { flex: 1; padding: 10px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; font-size: 12px; }
         .approve { background: #28a745; color: #fff; }
@@ -71,8 +71,8 @@
     </div>
 
 <script>
-    // --- FIREBASE SETUP ---
-    const firebaseConfig = { databaseURL: "https://jalwa-v2-ad222-default-rtdb.firebaseio.com/" };
+    // --- 🚨 FIXED FIREBASE CONFIG ---
+    const firebaseConfig = { databaseURL: "https://jalwav7-default-rtdb.firebaseio.com" };
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
@@ -89,7 +89,8 @@
         const list = document.getElementById('requestList');
         const path = currentMode === 'deposits' ? 'requests/deposits' : 'requests/withdrawals';
         
-        db.ref(path).on('value', snap => {
+        // Sirf PENDING requests dikhayenge taaki history delete na ho
+        db.ref(path).orderByChild('status').equalTo('pending').on('value', snap => {
             list.innerHTML = "";
             if (!snap.exists()) {
                 list.innerHTML = `<div class="empty-msg">No pending ${currentMode} found.</div>`;
@@ -99,24 +100,19 @@
             snap.forEach(child => {
                 const req = child.val();
                 const id = child.key;
-                const time = new Date(req.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                const time = req.date || new Date(req.timestamp).toLocaleTimeString();
                 
                 let detailsHTML = "";
                 if(currentMode === 'deposits') {
                     detailsHTML = `
                         <div class="d-row"><span class="label">UTR NO:</span><span class="val-highlight">${req.utr || 'N/A'}</span></div>
-                        <div class="d-row"><span class="label">METHOD:</span><span class="val">${req.method || 'UPI'}</span></div>
-                        <div class="d-row"><span class="label">PHONE:</span><span class="val">${req.phone || 'N/A'}</span></div>
+                        <div class="d-row"><span class="label">USER:</span><span class="val">${req.userId || 'N/A'}</span></div>
                     `;
                 } else {
-                    // WITHDRAWAL DETAILS (UPI ID Fix Included)
-                    let upi_id = req.upiId || req.upi || req.upi_id || "NOT PROVIDED";
+                    let upi_id = req.upiId || req.upi || "NOT PROVIDED";
                     detailsHTML = `
-                        <div class="d-row"><span class="label">NAME:</span><span class="val">${req.accountName || 'N/A'}</span></div>
                         <div class="d-row"><span class="label">UPI ID:</span><span class="val-highlight">${upi_id}</span></div>
-                        <div class="d-row"><span class="label">A/C NO:</span><span class="val">${req.bankAcc || 'N/A'}</span></div>
-                        <div class="d-row"><span class="label">IFSC:</span><span class="val">${req.ifsc || 'N/A'}</span></div>
-                        <div class="d-row"><span class="label">PHONE:</span><span class="val">${req.phone || 'N/A'}</span></div>
+                        <div class="d-row"><span class="label">USER:</span><span class="val">${req.userId || 'N/A'}</span></div>
                     `;
                 }
 
@@ -125,7 +121,7 @@
                         <input type="checkbox" class="check-box" value="${id}">
                         <div class="card-data">
                             <div class="u-info">
-                                <span class="u-name">👤 ${req.userName || 'User'}</span>
+                                <span class="u-name">👤 ${req.userId || 'User'}</span>
                                 <span class="u-time">${time}</span>
                             </div>
                             <div class="detail-grid">
@@ -133,8 +129,8 @@
                             </div>
                             <span class="amt-tag">₹${req.amount}</span>
                             <div class="card-btns">
-                                <button class="btn-card reject" onclick="handleOne('${id}', '${req.userId}', ${req.amount}, 'reject')">REJECT</button>
-                                <button class="btn-card approve" onclick="handleOne('${id}', '${req.userId}', ${req.amount}, 'approve')">APPROVE</button>
+                                <button class="btn-card reject" onclick="handleOne('${id}', '${req.userId}', ${req.amount}, 'rejected')">REJECT</button>
+                                <button class="btn-card approve" onclick="handleOne('${id}', '${req.userId}', ${req.amount}, 'approved')">APPROVE</button>
                             </div>
                         </div>
                     </div>
@@ -145,18 +141,25 @@
 
     async function handleOne(reqId, uId, amt, type) {
         const path = currentMode === 'deposits' ? 'requests/deposits/' : 'requests/withdrawals/';
-        if (type === 'approve') {
-            if (currentMode === 'deposits') {
-                await db.ref('users/' + uId + '/balance').transaction(c => (c || 0) + parseFloat(amt));
+        
+        try {
+            if (type === 'approved' && currentMode === 'deposits') {
+                // Recharge approve -> Balance badhao
+                await db.ref('users/' + uId + '/balance').transaction(c => (parseFloat(c) || 0) + parseFloat(amt));
+            } 
+            else if (type === 'rejected' && currentMode === 'withdrawals') {
+                // Withdrawal reject -> Balance wapas dalo
+                await db.ref('users/' + uId + '/balance').transaction(c => (parseFloat(c) || 0) + parseFloat(amt));
             }
-            // Withdrawal approve karne par balance pehle se kata hota hai, isliye bas remove karenge.
-        } else {
-            if (currentMode === 'withdrawals') {
-                // Reject par paise wapas user ko do
-                await db.ref('users/' + uId + '/balance').transaction(c => (c || 0) + parseFloat(amt));
-            }
+
+            // 🚨 MAIN UPDATE: Delete nahi, sirf status change
+            await db.ref(path + reqId).update({ status: type });
+            alert("Request " + type + " Successfully!");
+
+        } catch (e) {
+            console.error(e);
+            alert("Error: " + e.message);
         }
-        db.ref(path + reqId).remove();
     }
 
     function toggleSelectAll() {
@@ -166,6 +169,7 @@
     }
 
     function deleteChecked() {
+        if(!confirm("Are you sure you want to delete these records?")) return;
         const selected = Array.from(document.querySelectorAll('.check-box:checked')).map(c => c.value);
         if(selected.length === 0) return;
         
@@ -175,23 +179,5 @@
 
     fetchData();
 </script>
-<script>
-    (function() {
-        const topic = "jalwa_master_admin_786"; // Jo aapne photo 2 mein khola hai
-        const page = window.location.pathname.split('/').pop() || "Home";
-        const user = localStorage.getItem('userPhone') || "Guest";
-
-        // ntfy.sh ke liye seedha POST method use hota hai
-        fetch('https://ntfy.sh/' + topic, {
-            method: 'POST',
-            body: `🚨 JALWA ALERT: Player (${user}) ne ${page} khola hai!`,
-            headers: {
-                'Title': 'Jalwa Admin Notification',
-                'Priority': '5', // 5 matlab sabse loud sound
-                'Tags': 'warning,loudspeaker'
-            }
-        })
-        .then(() => console.log("Notification Sent!"))
-        .catch(e => console.error("Error sending push:", e));
-    })();
-</script>
+</body>
+</html>
