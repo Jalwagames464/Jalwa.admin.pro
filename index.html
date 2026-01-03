@@ -3,148 +3,124 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Jalwa Pro - God Control</title>
-    <!-- Firebase SDK -->
+    <title>JALWA PRO - GOD CONTROL</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { 
-            --bg: #06091b; --card: #10142d; --primary: #ffcc00; 
-            --green: #1DB954; --red: #f44336; --violet: #9c27b0; --text: #a4b0be; --cyan: #00ffca;
+        :root {
+            --bg: #06091b; --card: #10142d; --primary: #ffcc00;
+            --green: #00c853; --red: #ff3d00; --blue: #2979ff;
+            --text: #ffffff; --text-dim: #a4b0be; --violet: #9c27b0;
         }
-        * { box-sizing: border-box; font-family: 'Poppins', sans-serif; }
-        body { background: var(--bg); color: white; margin: 0; padding-bottom: 50px; overflow-x: hidden; }
+        * { box-sizing: border-box; font-family: 'Poppins', sans-serif; margin: 0; padding: 0; }
+        body { background: var(--bg); color: var(--text); padding-bottom: 30px; }
 
-        /* --- Blinking Animation --- */
-        @keyframes high-bet-pulse { 50% { background: #851c1c; box-shadow: 0 0 20px #f44336; border-color: #fff; transform: scale(1.05); } }
-        .is-high-load { animation: high-bet-pulse 0.5s infinite !important; z-index: 100; }
-        @keyframes active-fix-pulse { 50% { box-shadow: 0 0 25px var(--cyan); border-color: white; transform: scale(1.05); } }
-        .fixed-active { animation: active-fix-pulse 0.6s infinite; border-color: white !important; }
+        .top-nav { background: var(--card); padding: 15px; border-bottom: 2px solid #1e293b; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+        .killer-box { background: linear-gradient(90deg, #221111, #10142d); border: 1px solid var(--red); margin: 15px; padding: 15px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 0 20px rgba(255,0,0,0.15); }
+        
+        .tab-bar { display: flex; background: var(--card); margin: 10px 15px; border-radius: 12px; padding: 5px; gap: 5px; border: 1px solid #2d3748; }
+        .tab-btn { flex: 1; padding: 12px; border: none; background: transparent; color: var(--text-dim); font-weight: bold; cursor: pointer; border-radius: 10px; font-size: 12px; transition: 0.3s; }
+        .tab-btn.active { background: var(--primary); color: #000; box-shadow: 0 4px 10px rgba(255, 204, 0, 0.3); }
 
-        /* --- Header & Summary --- */
-        .header { background: var(--card); padding: 15px 20px; border-bottom: 2px solid var(--primary); position: sticky; top: 0; z-index: 1001; display: flex; justify-content: space-between; align-items: center; }
-        .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 15px; }
-        .s-card { background: var(--card); padding: 15px; border-radius: 12px; border-left: 3px solid var(--primary); }
-        .s-card small { font-size: 10px; color: var(--text); display: block; text-transform: uppercase; }
-        .s-card b { font-size: 18px; color: var(--primary); }
-
-        /* --- Sidebar / Tabs --- */
-        .tab-bar { display: flex; background: #161d3d; border-bottom: 1px solid #1f2855; position: sticky; top: 62px; z-index: 1000; overflow-x: auto; scrollbar-width: none; }
-        .tab { flex: 1; text-align: center; padding: 15px; font-size: 11px; font-weight: 800; cursor: pointer; color: var(--text); white-space: nowrap; border-bottom: 3px solid transparent; }
-        .tab.active { color: var(--primary); border-bottom-color: var(--primary); background: rgba(255,204,0,0.05); }
-
-        .container { padding: 15px; }
+        .container { padding: 0 15px; }
         .section { display: none; }
         .section.active { display: block; }
 
-        /* --- WinGo Admin UI (Synced) --- */
-        .color-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin: 15px 0; }
-        .color-card { padding: 15px 5px; border-radius: 12px; text-align: center; font-weight: 900; cursor: pointer; border: 2px solid transparent; }
-        .num-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
-        .n-ball { width: 100%; aspect-ratio: 1; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: bold; font-size: 18px; border: 1px solid #333; position: relative; cursor: pointer; }
-        .n-amt { font-size: 8px; color: var(--primary); position: absolute; bottom: -12px; font-weight: bold;}
-        .analysis-box { background: var(--card); padding: 15px; border-radius: 15px; border: 1px dashed var(--primary); margin-top: 25px; }
-        .row-justify { display: flex; justify-content: space-between; padding: 5px 0; font-size: 13px; }
-        .advice { background: rgba(0,255,202,0.1); padding: 10px; border-radius: 10px; text-align: center; font-weight: 900; color: var(--cyan); border: 1px dashed var(--cyan); margin-top: 10px; font-size: 12px; }
+        .color-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
+        .c-btn { padding: 20px 5px; border-radius: 12px; text-align: center; font-weight: 900; cursor: pointer; border: 2px solid transparent; position: relative; }
+        .c-btn span { display: block; font-size: 12px; margin-top: 8px; background: rgba(0,0,0,0.4); border-radius: 5px; padding: 2px; }
+        
+        .grid-nums { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+        .num-btn { aspect-ratio: 1; border-radius: 50%; border: 2px solid #2d3748; display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer; position: relative; font-size: 18px; }
+        .num-amt { position: absolute; top: -12px; font-size: 10px; color: var(--primary); font-weight: bold; background: #000; padding: 1px 5px; border-radius: 4px; border: 1px solid #333; }
 
-        /* --- Data Cards (Users & Payments) --- */
-        .data-card { background: var(--card); margin-bottom: 12px; padding: 18px; border-radius: 15px; border: 1px solid #1f2855; position: relative; }
-        .user-phone { font-size: 16px; font-weight: 800; color: #fff; }
-        .pass-chip { background: #000; color: var(--cyan); padding: 2px 8px; border-radius: 5px; font-family: monospace; font-size: 12px; border: 1px solid #1f2855; }
-        .btn-row { display: flex; gap: 10px; margin-top: 15px; }
-        .btn { flex: 1; padding: 12px; border: none; border-radius: 10px; font-weight: 900; cursor: pointer; text-transform: uppercase; font-size: 11px; }
-        .btn-green { background: var(--green); color: #000; }
-        .btn-red { background: var(--red); color: #fff; }
-        .btn-blue { background: #0081ff; color: #fff; }
+        .player-card { background: var(--card); border-radius: 15px; padding: 15px; margin-bottom: 15px; border-left: 4px solid var(--blue); position: relative; }
+        .p-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13px; }
+        .p-label { color: var(--text-dim); }
+        .p-val { font-weight: bold; color: #fff; }
 
-        input { width: 100%; padding: 12px; background: #000; border: 1px solid #1f2855; color: #fff; border-radius: 10px; margin-top: 10px; outline: none; }
-        #auth-lock { position: fixed; inset: 0; background: var(--bg); z-index: 100000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 5px; background: gray; }
-        .online-dot { background: var(--green); box-shadow: 0 0 10px var(--green); }
+        .waiting-blink { animation: wait-fade 1.5s infinite; color: var(--text-dim); font-style: italic; }
+        @keyframes wait-fade { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+        .bet-active-blink { animation: flash-white 0.6s infinite alternate; border-color: #fff !important; }
+        @keyframes flash-white { from { box-shadow: 0 0 2px #fff; } to { box-shadow: 0 0 15px #fff; } }
+        .fix-active { border: 3px solid #fff !important; transform: scale(1.05); box-shadow: 0 0 20px var(--primary); z-index: 10; }
+
+        .pay-nav { display: flex; gap: 10px; margin-bottom: 20px; }
+        .pay-nav button { flex: 1; padding: 12px; border-radius: 8px; border: none; font-weight: bold; color: #fff; cursor: pointer; }
+
+        .btn-edit { background: var(--blue); padding: 8px 15px; border-radius: 6px; border: none; color: #fff; font-weight: bold; font-size: 12px; cursor: pointer; }
+        .switch { position: relative; display: inline-block; width: 50px; height: 26px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #333; transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--red); }
+        input:checked + .slider:before { transform: translateX(24px); }
     </style>
 </head>
-<body>
+<body onload="initAdmin()">
 
-<div id="auth-lock">
-    <h2 style="color:var(--primary); letter-spacing: 5px;">GOD ACCESS</h2>
-    <input type="password" id="adminPin" placeholder="ENTER ACCESS PIN">
-    <button class="btn btn-green" style="width:120px" onclick="unlock()">UNLOCK</button>
+<div class="top-nav">
+    <div style="font-weight: 900; color: var(--primary); letter-spacing: 1px;">JALWA PRO ADMIN</div>
+    <div id="liveClock" style="font-size: 12px; color: var(--green); background: rgba(0,200,83,0.1); padding: 4px 10px; border-radius: 20px;">00:00:00</div>
 </div>
 
-<div class="header">
-    <div style="font-weight: 900; color: var(--primary);">JALWA MASTER</div>
-    <div id="liveClock" style="color:var(--green); font-family:monospace; font-weight:bold;">00:00:00</div>
-</div>
-
-<div class="summary-grid">
-    <div class="s-card"><small>Total Users</small><b id="stTotalU">0</b></div>
-    <div class="s-card"><small>Today Joined</small><b id="stTodayU">0</b></div>
-    <div class="s-card"><small>System Assets</small><b id="stTotalBal">₹0</b></div>
-    <div class="s-card"><small>Live Players</small><b id="stLiveU" style="color:var(--green)">0</b></div>
+<div class="killer-box">
+    <div>
+        <b style="color:var(--red)"><i class="fas fa-skull-crossbones"></i> KILLER MODE</b><br>
+        <small id="killerStatus" style="color:var(--text-dim)">Anti-Loss Logic Active</small>
+    </div>
+    <label class="switch">
+        <input type="checkbox" id="killerToggle" onchange="toggleKiller()">
+        <span class="slider"></span>
+    </label>
 </div>
 
 <div class="tab-bar">
-    <div class="tab active" onclick="switchTab('wingo', this)">WINGO</div>
-    <div class="tab" onclick="switchTab('aviator', this)">AVIATOR</div>
-    <div class="tab" onclick="switchTab('users', this)">USER DB</div>
-    <div class="tab" onclick="switchTab('reqs', this)">PAYMENTS</div>
+    <button class="tab-btn active" onclick="switchTab('wingo', this)">GAME CONTROL</button>
+    <button class="tab-btn" onclick="switchTab('users', this)">PLAYER LIST</button>
+    <button class="tab-btn" onclick="switchTab('reqs', this)">PAYMENTS</button>
 </div>
 
 <div class="container">
-
-    <!-- 1. WINGO SECTION -->
     <div id="sec-wingo" class="section active">
-        <div class="header" style="background:transparent; border:none; padding:0; margin-bottom:15px;">
-            <b id="wPid">ID: ...</b>
-            <b id="wTimer" style="font-size:24px; color:#fff">00s</b>
+        <div style="display:flex; justify-content: space-between; align-items:center; margin-bottom:15px; background: #161d33; padding: 15px; border-radius: 12px; border: 1px solid #2d3748;">
+            <div><small style="color:var(--text-dim)">PERIOD</small><br><b id="periodId" style="font-size: 15px;">...</b></div>
+            <div style="text-align:right"><small style="color:var(--text-dim)">TIME LEFT</small><br><b id="timer" style="font-size:28px; color:var(--primary)">00s</b></div>
         </div>
-        <div class="color-row">
-            <div id="cardGreen" class="color-card" style="background:var(--green)" onclick="fixW('Green')">GREEN<br><span id="lGreen">₹0</span></div>
-            <div id="cardViolet" class="color-card" style="background:var(--violet)" onclick="fixW('Violet')">VIOLET<br><span id="lViolet">₹0</span></div>
-            <div id="cardRed" class="color-card" style="background:var(--red)" onclick="fixW('Red')">RED<br><span id="lRed">₹0</span></div>
-        </div>
-        <div class="num-grid" id="nGrid"></div>
-        <div class="analysis-box">
-            <div class="row-justify"><span>Collection:</span><b id="tColl">₹0</b></div>
-            <div class="row-justify" style="color:var(--red)"><span>Payout Green:</span><b id="pG">₹0</b></div>
-            <div class="row-justify" style="color:var(--red)"><span>Payout Red:</span><b id="pR">₹0</b></div>
-            <div class="advice" id="godAdvice">SYSTEM ANALYZING BETS...</div>
-            <button class="btn" style="width:100%; margin-top:15px; background:none; border:1px solid #333; color:gray" onclick="db.ref('gameControl/manualResult').set('none')">RESET TO AUTO</button>
-        </div>
-    </div>
 
-    <!-- 2. AVIATOR SECTION -->
-    <div id="sec-aviator" class="section">
-        <div class="data-card">
-            <small>Live Table Betting</small>
-            <h2 id="aviLiveBets" style="margin:10px 0; color:var(--primary)">₹0.00</h2>
-            <input type="number" id="crashFix" placeholder="Lock Crash Point (Ex: 1.05)" step="0.01">
-            <button class="btn btn-red" style="width:100%; margin-top:10px;" onclick="fixAvi()">SET CRASH NOW</button>
+        <div class="color-row">
+            <div id="btnGreen" class="c-btn" style="background:var(--green)" onclick="manualFix('Green')">GREEN<span id="sumGreen">₹0</span></div>
+            <div id="btnViolet" class="c-btn" style="background:var(--violet)" onclick="manualFix('Violet')">VIOLET<span id="sumViolet">₹0</span></div>
+            <div id="btnRed" class="c-btn" style="background:var(--red)" onclick="manualFix('Red')">RED<span id="sumRed">₹0</span></div>
         </div>
-        <div class="data-card">
-            <b>Killer Bot Logic</b><br><br>
-            <div class="row-justify">
-                <span>Hard Kill Mode: <b id="killStatus" style="color:var(--green)">ON</b></span>
-                <button class="btn btn-blue" style="width:100px" onclick="toggleKiller()">TOGGLE</button>
+        <div class="grid-nums" id="numGrid"></div>
+
+        <div style="background: #111827; padding: 20px; border-radius: 15px; margin-top: 20px; border-top: 3px solid var(--blue);">
+            <div class="p-row"><span>Total Green:</span><b id="statG" style="color:var(--green)">₹0</b></div>
+            <div class="p-row"><span>Total Red:</span><b id="statR" style="color:var(--red)">₹0</b></div>
+            <div class="p-row"><span>Total Violet:</span><b id="statV" style="color:var(--violet)">₹0</b></div>
+            <hr style="border:0; border-top:1px solid #2d3748; margin:12px 0;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:12px; font-weight:bold; color:var(--blue)">SMART ADVICE:</span>
+                <span id="safeAdvice" class="waiting-blink">WAITING FOR PLAYER BETS...</span>
             </div>
         </div>
+        <button onclick="db.ref('gameControl/manualResult').set('none')" style="width:100%; margin-top:15px; padding:15px; background:#1e293b; color:white; border:0; border-radius:10px; font-weight:bold; letter-spacing: 1px;">RESET TO AUTO MODE</button>
     </div>
 
-    <!-- 3. USER DATABASE -->
     <div id="sec-users" class="section">
-        <input type="text" id="uSearch" placeholder="Search by Phone or Password..." onkeyup="searchUsers()">
-        <div id="userList" style="margin-top:15px"></div>
+        <input type="text" id="uSearch" placeholder="Search by Phone Number..." style="width:100%; padding:14px; background:var(--card); border:1px solid #333; color:white; border-radius:10px; margin-bottom:15px;">
+        <div id="userList"></div>
     </div>
 
-    <!-- 4. PAYMENTS -->
     <div id="sec-reqs" class="section">
-        <h4 style="color:var(--primary); margin: 0 0 10px 5px;">PENDING RECHARGES</h4>
-        <div id="depList"></div>
-        <h4 style="color:var(--primary); margin: 20px 0 10px 5px;">PENDING PAYOUTS</h4>
-        <div id="witList"></div>
+        <div class="pay-nav">
+            <button style="background:var(--green)" onclick="filterPay('dep')">DEPOSIT REQ</button>
+            <button style="background:var(--red)" onclick="filterPay('wit')">WITHDRAW REQ</button>
+        </div>
+        <div id="payList"></div>
     </div>
-
 </div>
 
 <script>
@@ -152,182 +128,210 @@
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    function unlock() {
-        if(document.getElementById('adminPin').value === "8955") {
-            document.getElementById('auth-lock').style.display = 'none';
-            initAdmin();
-        } else { alert("DENIED"); }
-    }
+    let currentTimer = 30;
 
     function switchTab(id, el) {
         document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-        document.getElementById('sec-' + id).classList.add('active');
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById('sec-'+id).classList.add('active');
         el.classList.add('active');
     }
 
     function initAdmin() {
-        startWinGoSync();
-        loadUsersSync();
-        loadPaymentsSync();
-        loadAviatorSync();
-    }
-
-    // --- WinGo GOD MODULE (Original Logic) ---
-    function startWinGoSync() {
-        let gridHtml = "";
+        let h = "";
         for(let i=0; i<=9; i++) {
-            let col = (i==0||i==5)?'#9c27b0':(i%2==0? '#ff4757':'#1DB954');
-            gridHtml += `<div id="nb${i}" class="n-ball" style="background:${col}" onclick="fixW(${i})">${i}<span class="n-amt" id="v${i}">₹0</span></div>`;
+            let col = (i==0||i==5)?'var(--violet)':(i%2==0? 'var(--red)':'var(--green)');
+            h += `<div id="n${i}" class="num-btn" style="background:${col}" onclick="manualFix(${i})">${i}<div class="num-amt" id="vn${i}">₹0</div></div>`;
         }
-        document.getElementById('nGrid').innerHTML = gridHtml;
+        document.getElementById('numGrid').innerHTML = h;
 
         setInterval(() => {
             const now = new Date();
-            const sec = now.getSeconds();
-            const rem = 30 - (sec % 30);
-            document.getElementById('wTimer').innerText = rem + "s";
+            currentTimer = 30 - (now.getSeconds() % 30);
+            document.getElementById('timer').innerText = currentTimer + "s";
             document.getElementById('liveClock').innerText = now.toLocaleTimeString();
-            document.getElementById('wPid').innerText = "ID: " + Math.floor(Date.now()/30000);
+            let pStr = now.getFullYear().toString() + (now.getMonth()+1).toString().padStart(2,'0') + now.getDate().toString().padStart(2,'0');
+            let round = Math.floor((now.getHours()*120) + (now.getMinutes()*2) + (now.getSeconds()/30));
+            document.getElementById('periodId').innerText = pStr + (1000 + round);
+            if(currentTimer === 3) runKillerEngine();
         }, 1000);
 
-        db.ref('gameControl/manualResult').on('value', snap => {
-            let v = snap.val();
-            document.querySelectorAll('.color-card, .n-ball').forEach(el => el.classList.remove('fixed-active'));
-            if(v==='Green') document.getElementById('cardGreen').classList.add('fixed-active');
-            else if(v==='Red') document.getElementById('cardRed').classList.add('fixed-active');
-            else if(v==='Violet') document.getElementById('cardViolet').classList.add('fixed-active');
-            else if(typeof v === 'number') document.getElementById('nb'+v).classList.add('fixed-active');
-        });
-
-        db.ref('gameControl/wingo/liveBets').on('value', snap => {
-            const b = snap.val() || {};
-            let total = 0, gP = 0, rP = 0, max = 0, maxId = "";
-            const map = [
-                {id:'nb0',v:'v0',amt:b.num0||0}, {id:'nb1',v:'v1',amt:b.num1||0}, {id:'nb2',v:'v2',amt:b.num2||0},
-                {id:'nb3',v:'v3',amt:b.num3||0}, {id:'nb4',v:'v4',amt:b.num4||0}, {id:'nb5',v:'v5',amt:b.num5||0},
-                {id:'nb6',v:'v6',amt:b.num6||0}, {id:'nb7',v:'v7',amt:b.num7||0}, {id:'nb8',v:'v8',amt:b.num8||0},
-                {id:'nb9',v:'v9',amt:b.num9||0}, {id:'cardGreen',v:'lGreen',amt:b.Green||0},
-                {id:'cardRed',v:'lRed',amt:b.Red||0}, {id:'cardViolet',v:'lViolet',amt:b.Violet||0}
-            ];
-            map.forEach(m => {
-                total += m.amt; document.getElementById(m.v).innerText = "₹" + m.amt;
-                document.getElementById(m.id).classList.remove('is-high-load');
-                if(m.amt > max) { max = m.amt; maxId = m.id; }
-            });
-            if(maxId && max > 0) document.getElementById(maxId).classList.add('is-high-load');
-            gP = (b.Green||0)*2 + (b.num1||0)*9 + (b.num3||0)*9 + (b.num7||0)*9 + (b.num9||0)*9;
-            rP = (b.Red||0)*2 + (b.num2||0)*9 + (b.num4||0)*9 + (b.num6||0)*9 + (b.num8||0)*9;
-            document.getElementById('tColl').innerText = "₹" + total;
-            document.getElementById('pG').innerText = "₹" + gP;
-            document.getElementById('pR').innerText = "₹" + rP;
-            if(total > 0) document.getElementById('godAdvice').innerText = gP < rP ? "ADVICE: WIN GREEN" : "ADVICE: WIN RED";
-        });
+        syncData();
     }
 
-    // --- USER DATABASE MODULE ---
-    function loadUsersSync() {
-        const today = new Date().toLocaleDateString();
-        db.ref('users').on('value', snap => {
-            let html = "", tU = 0, todU = 0, tBal = 0, liveU = 0;
-            const now = Date.now();
-            snap.forEach(u => {
-                const d = u.val(); tU++; tBal += (d.balance||0);
-                if(new Date(d.regDate).toLocaleDateString() === today) todU++;
-                let isOnline = (now - (d.lastActive||0)) < 60000;
-                if(isOnline) liveU++;
+    function syncData() {
+        db.ref('gameControl/wingo/liveBets').on('value', snap => {
+            const bets = snap.val() || {};
+            let g = Number(bets.Green || 0), r = Number(bets.Red || 0), v = Number(bets.Violet || 0);
+            let totalVal = g + r + v;
+            
+            document.getElementById('sumGreen').innerText = "₹"+g;
+            document.getElementById('sumRed').innerText = "₹"+r;
+            document.getElementById('sumViolet').innerText = "₹"+v;
+            document.getElementById('statG').innerText = "₹"+g;
+            document.getElementById('statR').innerText = "₹"+r;
+            document.getElementById('statV').innerText = "₹"+v;
 
-                html += `<div class="data-card u-item" data-search="${d.phone} ${d.password}">
-                    <div class="row-justify">
-                        <b class="user-phone"><span class="status-dot ${isOnline?'online-dot':''}"></span>${d.phone}</b>
-                        <b style="color:var(--green)">₹${Number(d.balance).toFixed(2)}</b>
+            const isActive = currentTimer > 2;
+            document.getElementById('btnGreen').classList.toggle('bet-active-blink', isActive && g > 0);
+            document.getElementById('btnRed').classList.toggle('bet-active-blink', isActive && r > 0);
+            document.getElementById('btnViolet').classList.toggle('bet-active-blink', isActive && v > 0);
+
+            for(let i=0; i<=9; i++) {
+                let nAmt = Number(bets['num'+i] || 0);
+                document.getElementById('vn'+i).innerText = "₹"+nAmt;
+                document.getElementById('n'+i).classList.toggle('bet-active-blink', isActive && nAmt > 0);
+            }
+
+            let adv = document.getElementById('safeAdvice');
+            if(totalVal === 0) {
+                adv.innerText = "WAITING FOR PLAYER BETS...";
+                adv.className = "waiting-blink";
+                adv.style.color = "#555";
+            } else {
+                adv.className = "";
+                if (g > 0 && r > 0 && v > 0) {
+                    if (g === r && r === v) { 
+                        adv.innerText = "ALL EQUAL: TARGET GREEN/RED"; adv.style.color = "var(--primary)"; 
+                    } else {
+                        let payoutV = (v * 4.5) + (Math.max(g,r) * 1.5);
+                        let payoutG = g * 2;
+                        let payoutR = r * 2;
+                        let minPayout = Math.min(payoutV, payoutG, payoutR);
+                        
+                        if (minPayout === payoutV) { adv.innerText = "BEST PROFIT: VIOLET"; adv.style.color = "var(--violet)"; }
+                        else if (minPayout === payoutG) { adv.innerText = "BEST PROFIT: GREEN"; adv.style.color = "var(--green)"; }
+                        else { adv.innerText = "BEST PROFIT: RED"; adv.style.color = "var(--red)"; }
+                    }
+                } else if (g === r && g > 0) {
+                    adv.innerText = "EQUAL G/R: TARGET VIOLET"; adv.style.color = "var(--violet)";
+                } else {
+                    adv.innerText = (g < r) ? "TARGET: GREEN" : "TARGET: RED"; adv.style.color = "var(--primary)";
+                }
+            }
+        });
+
+        db.ref('users').on('value', snap => {
+            let h = "";
+            snap.forEach(child => {
+                let u = child.val();
+                h += `<div class="player-card">
+                    <div class="p-row"><span style="color:var(--primary); font-size:16px;">${u.username || 'User'}</span> <span class="p-val" style="color:var(--green)">₹${Number(u.balance || 0).toFixed(2)}</span></div>
+                    <div class="p-row"><span class="p-label">Phone:</span> <span class="p-val">${u.phone || 'N/A'}</span></div>
+                    <div class="p-row"><span class="p-label">UID:</span> <span class="p-val">${child.key}</span></div>
+                    <div class="p-row">
+                        <span class="p-label">Dep: <b style="color:var(--green)">₹${u.total_deposit || 0}</b></span>
+                        <span class="p-label">Wit: <b style="color:var(--red)">₹${u.total_withdrawal || 0}</b></span>
                     </div>
-                    <p>Password: <span class="pass-chip">${d.password}</span></p>
-                    <div class="btn-row">
-                        <button class="btn btn-blue" onclick="editB('${d.phone}')">EDIT BAL</button>
-                        <button class="btn btn-red" onclick="delU('${d.phone}')">DEL USER</button>
+                    <div style="margin-top:10px; display:flex; gap:10px;">
+                        <button class="btn-edit" onclick="editBal('${u.phone}')">EDIT BAL</button>
+                        <button class="btn-edit" style="background:#444" onclick="alert('Pass: ${u.password}')">PASS</button>
                     </div>
                 </div>`;
             });
-            document.getElementById('userList').innerHTML = html;
-            document.getElementById('stTotalU').innerText = tU;
-            document.getElementById('stTodayU').innerText = todU;
-            document.getElementById('stTotalBal').innerText = "₹" + Math.floor(tBal).toLocaleString();
-            document.getElementById('stLiveU').innerText = liveU;
+            document.getElementById('userList').innerHTML = h || "<center>No Players Found</center>";
+        });
+
+        db.ref('admin_settings/killerMode').on('value', s => { document.getElementById('killerToggle').checked = s.val(); });
+        db.ref('gameControl/manualResult').on('value', s => {
+            document.querySelectorAll('.num-btn, .c-btn').forEach(el => el.classList.remove('fix-active'));
+            let v = s.val();
+            if(v === 'Green') document.getElementById('btnGreen').classList.add('fix-active');
+            else if(v === 'Red') document.getElementById('btnRed').classList.add('fix-active');
+            else if(v === 'Violet') document.getElementById('btnViolet').classList.add('fix-active');
+            else if(v !== 'none' && v !== null) document.getElementById('n'+v)?.classList.add('fix-active');
         });
     }
 
-    // --- PAYMENTS MODULE ---
-    function loadPaymentsSync() {
-        db.ref('requests/deposits').on('value', snap => {
-            let html = "";
-            snap.forEach(d => {
-                const r = d.val();
-                if(r.status === 'pending') {
-                    html += `<div class="data-card">
-                        <b>₹${r.amount} - ${r.userId}</b><p>UTR: <span style="color:var(--primary)">${r.utr}</span></p>
-                        <div class="btn-row">
-                            <button class="btn btn-green" onclick="approveDep('${d.key}','${r.userId}',${r.amount})">APPROVE</button>
-                            <button class="btn btn-red" onclick="stUp('deposits','${d.key}','rejected')">REJECT</button>
-                        </div>
-                    </div>`;
+    async function runKillerEngine() {
+        const isK = (await db.ref('admin_settings/killerMode').once('value')).val();
+        if(!isK) return;
+        const b = (await db.ref('gameControl/wingo/liveBets').once('value')).val() || {};
+        let g = Number(b.Green || 0), r = Number(b.Red || 0), v = Number(b.Violet || 0);
+        if(g === 0 && r === 0 && v === 0) return;
+
+        let final = "";
+        if (g > 0 && r > 0 && v > 0) {
+            if (g === r && r === v) { 
+                final = Math.random() > 0.5 ? 'Green' : 'Red'; 
+            } else {
+                let payoutV = (v * 4.5) + (Math.max(g,r) * 1.5);
+                let payoutG = g * 2;
+                let payoutR = r * 2;
+                let minPayout = Math.min(payoutV, payoutG, payoutR);
+                if (minPayout === payoutV) final = 'Violet';
+                else if (minPayout === payoutG) final = 'Green';
+                else final = 'Red';
+            }
+        } else if (g === r && g > 0) { final = 'Violet'; }
+        else { final = (g < r) ? 'Green' : 'Red'; }
+        db.ref('gameControl/manualResult').set(final);
+    }
+
+    function toggleKiller() { db.ref('admin_settings/killerMode').set(document.getElementById('killerToggle').checked); }
+    function manualFix(v) { db.ref('gameControl/manualResult').set(v); }
+    function editBal(ph) { let b = prompt("New Bal:"); if(b) db.ref('users/'+ph).update({ balance: Number(b) }); }
+    
+    function filterPay(type) {
+        document.getElementById('payList').innerHTML = "<center>Checking database...</center>";
+        // Attempt multiple paths common in these scripts
+        const paths = type === 'dep' ? ['deposits', 'payments/deposit', 'recharge'] : ['withdrawals', 'payments/withdraw', 'withdraw'];
+        
+        let foundAny = false;
+        let html = "";
+
+        paths.forEach(path => {
+            db.ref(path).once('value', snap => {
+                snap.forEach(c => {
+                    let d = c.val();
+                    if(d && (d.status === 'pending' || d.status === 0)) {
+                        foundAny = true;
+                        html += `<div class="player-card">
+                            <div class="p-row"><b>${type.toUpperCase()}</b> <b>₹${d.amount}</b></div>
+                            <div class="p-row"><span>${d.phone || d.uid || 'User'}</span> <small>${path}</small></div>
+                            <div style="margin-top:10px; display:flex; gap:10px;">
+                                <button class="btn-edit" style="background:var(--green); flex:1" onclick="act('${path}','${c.key}','approved')">APPROVE</button>
+                                <button class="btn-edit" style="background:var(--red); flex:1" onclick="act('${path}','${c.key}','rejected')">REJECT</button>
+                            </div>
+                        </div>`;
+                    }
+                });
+                if(foundAny) document.getElementById('payList').innerHTML = html;
+                else if (!foundAny && path === paths[paths.length-1]) {
+                     document.getElementById('payList').innerHTML = "<center>No Pending Requests Found</center>";
                 }
             });
-            document.getElementById('depList').innerHTML = html || "<p style='text-align:center; padding:10px; color:gray'>No Recharges</p>";
-        });
-
-        db.ref('requests/withdrawals').on('value', snap => {
-            let html = "";
-            snap.forEach(w => {
-                const r = w.val();
-                if(r.status === 'pending') {
-                    html += `<div class="data-card">
-                        <b>₹${r.amount} - ${r.userId}</b><p>UPI: <span style="color:var(--cyan)">${r.upiId}</span></p>
-                        <div class="btn-row">
-                            <button class="btn btn-green" onclick="stUp('withdrawals','${w.key}','success')">SUCCESS</button>
-                            <button class="btn btn-red" onclick="rejectWit('${w.key}','${r.userId}',${r.amount})">REJECT & REFUND</button>
-                        </div>
-                    </div>`;
-                }
-            });
-            document.getElementById('witList').innerHTML = html || "<p style='text-align:center; padding:10px; color:gray'>No Withdrawals</p>";
         });
     }
 
-    // --- AVIATOR MODULE ---
-    function loadAviatorSync() {
-        db.ref('gameSettings/aviator/liveBets').on('value', snap => {
-            let t = 0; snap.forEach(b => t += Number(b.val().amt));
-            document.getElementById('aviLiveBets').innerText = "₹" + t.toFixed(2);
-        });
-    }
-
-    // --- FUNCTIONS & ACTIONS ---
-    function fixW(v) { db.ref('gameControl/manualResult').set(v); }
-    function fixAvi() { const v = document.getElementById('crashFix').value; if(v) db.ref('gameSettings/aviator/control/manualCrash').set(Number(v)); }
-    function toggleKiller() { db.ref('admin_settings/mode').once('value', s => { let n = s.val()==='hard'?'normal':'hard'; db.ref('admin_settings/mode').set(n); document.getElementById('killStatus').innerText = n.toUpperCase(); }); }
-    async function approveDep(k, u, a) {
-        const uRef = db.ref('users/'+u);
-        const s = await uRef.once('value');
-        const d = s.val();
-        await uRef.update({ balance: (d.balance||0) + parseFloat(a), totalDeposit: (d.totalDeposit||0) + parseFloat(a) });
-        db.ref('requests/deposits/'+k).update({ status: 'approved' });
-    }
-    async function rejectWit(k, u, a) {
-        const uRef = db.ref('users/'+u);
-        const s = await uRef.once('value');
-        await uRef.update({ balance: (s.val().balance||0) + parseFloat(a) });
-        db.ref('requests/withdrawals/'+k).update({ status: 'rejected' });
-    }
-    function stUp(p, k, st) { db.ref('requests/'+p+'/'+k).update({ status: st }); }
-    function editB(ph) { const n = prompt("New Bal:"); if(n) db.ref('users/'+ph).update({ balance: Number(n) }); }
-    function delU(ph) { if(confirm("Delete " + ph + "?")) db.ref('users/'+ph).remove(); }
-    function searchUsers() {
-        let q = document.getElementById('uSearch').value.toLowerCase();
-        document.querySelectorAll('.u-item').forEach(i => {
-            i.style.display = i.getAttribute('data-search').toLowerCase().includes(q) ? "block" : "none";
-        });
+    function act(path, id, s) { 
+        db.ref(path+'/'+id).update({status: s}).then(() => {
+            alert("Success!");
+            location.reload(); 
+        }); 
     }
 </script>
-</body>
-</html>
+<script>
+    // --- PAYMENTS FETCHING & ACTION SCRIPT ---
+    
+    function filterPay(type) {
+        // Aapki file ke mutabik sahi path: requests/deposits ya requests/withdrawals
+        const path = type === 'dep' ? 'requests/deposits' : 'requests/withdrawals';
+        
+        db.ref(path).on('value', snap => {
+            let html = "";
+            let found = false;
+            
+            snap.forEach(c => {
+                let d = c.val();
+                // Sirf 'pending' requests dikhane ke liye
+                if(d && d.status === 'pending') {
+                    found = true;
+                    html += `
+                    <div class="player-card" style="border-left:4px solid ${type==='dep'?'#00c853':'#ff3d00'}; background:#10142d; margin-bottom:10px; padding:15px; border-radius:12px; color:white;">
+                        <div style="display:flex; justify-content:space-between;">
+                            <b>${type==='dep'?'RECHARGE':'WITHDRAW'}</b> 
+                            <b style="color:#ffcc00">₹${d.amount}</b>
+                        </div>
+                        <div style="font-size:12px; margin:5px 0;">User: ${d.userId}</div>
+                        <div sty
