@@ -3,164 +3,141 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jalwa Admin: Live Player Tracker</title>
+    <title>Master Player List</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-        body { background: #06091b; color: white; padding: 15px; }
+        :root { --bg: #050810; --card: #10142d; --accent: #00f2ff; --neon-red: #ff2d55; --neon-green: #00ff88; --text: #e0e6ed; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: sans-serif; }
+        body { background: var(--bg); color: var(--text); padding-bottom: 20px; overflow-y: auto; }
 
-        /* LED Blinking Animation */
-        @keyframes blinker {
-            50% { opacity: 0.3; transform: scale(0.8); }
-        }
+        /* Stats Cards */
+        .stats-container { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 15px; position: sticky; top: 0; background: var(--bg); z-index: 1000; }
+        .stat-box { background: var(--card); border: 1px solid #1f2855; padding: 12px; border-radius: 12px; text-align: center; }
+        .stat-box span { font-size: 10px; color: #8892b0; display: block; margin-bottom: 4px; }
+        .stat-box b { font-size: 16px; color: var(--accent); }
 
-        .status-dot { height: 10px; width: 10px; border-radius: 50%; display: inline-block; margin-right: 8px; }
+        /* Search */
+        .search-box { padding: 0 15px 15px; }
+        .search-box input { width: 100%; background: var(--card); border: 1px solid #1f2855; padding: 12px; border-radius: 10px; color: white; outline: none; }
+
+        /* Player List */
+        .player-list { padding: 10px; display: flex; flex-direction: column; gap: 15px; }
+        .p-card { background: var(--card); border-radius: 15px; border: 1px solid #1f2855; padding: 15px; position: relative; }
         
-        .online { 
-            background: #28a745; 
-            box-shadow: 0 0 10px #28a745, 0 0 20px #28a745; 
-            animation: blinker 1s linear infinite; 
-        }
-        
-        .offline { background: #444; }
+        .p-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+        .p-id { font-weight: bold; font-size: 14px; color: #fff; }
+        .p-time { font-size: 9px; color: #8892b0; margin-top: 2px; }
+        .online-tag { font-size: 9px; color: var(--neon-green); font-weight: bold; border: 1px solid var(--neon-green); padding: 2px 6px; border-radius: 4px; }
 
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .title { color: #00ffca; font-size: 18px; font-weight: 900; letter-spacing: 1px; }
+        .info-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 8px; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; margin-bottom: 12px; }
+        .info-item span { font-size: 9px; color: #8892b0; display: block; }
+        .info-item b { font-size: 12px; color: var(--accent); }
 
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-        .stat-box { background: #10142d; padding: 15px; border-radius: 12px; border: 1px solid #1f2855; text-align: center; }
-        .stat-box span { display: block; color: #7e87a8; font-size: 11px; margin-bottom: 5px; text-transform: uppercase; }
-        .stat-box b { font-size: 20px; color: #fff; }
-
-        .search-box { position: relative; margin-bottom: 15px; }
-        .search-box input { width: 100%; background: #10142d; border: 1px solid #1f2855; padding: 12px 40px; border-radius: 12px; color: white; outline: none; font-size: 14px; }
-        .search-box i { position: absolute; left: 15px; top: 15px; color: #7e87a8; }
-
-        .table-container { background: #10142d; border-radius: 15px; border: 1px solid #1f2855; overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; min-width: 650px; }
-        th { background: rgba(0,255,202,0.05); color: #7e87a8; text-align: left; padding: 15px; font-size: 11px; text-transform: uppercase; border-bottom: 1px solid #1f2855; }
-        td { padding: 15px; border-bottom: 1px solid #1f2855; font-size: 13px; vertical-align: middle; }
-
-        .user-id-text { font-weight: bold; color: #fff; margin-bottom: 2px; }
-        .phone-text { color: #009efd; font-size: 12px; font-family: monospace; }
-        .bal-text { color: #00ffca; font-weight: 900; font-size: 15px; }
-        .last-active { font-size: 11px; color: #7e87a8; }
-
-        .btn-adjust { background: rgba(0, 255, 202, 0.1); color: #00ffca; border: 1px solid #00ffca; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 11px; font-weight: bold; }
-        .btn-adjust:hover { background: #00ffca; color: #000; }
+        .btn-row { display: flex; gap: 8px; }
+        .btn { flex: 1; padding: 10px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; font-size: 11px; }
+        .btn-edit { background: var(--accent); color: #000; }
+        .btn-del { background: rgba(255, 45, 85, 0.1); color: var(--neon-red); border: 1px solid var(--neon-red); }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <div class="title">LIVE PLAYER MONITOR</div>
-        <div id="onlineCount" style="background: rgba(40, 167, 69, 0.2); color: #28a745; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: bold;">0 ONLINE</div>
-    </div>
-
-    <div class="stats-grid">
-        <div class="stat-box">
-            <span>TOTAL REGISTERED</span>
-            <b id="totalUsers">0</b>
-        </div>
-        <div class="stat-box">
-            <span>TOTAL LIABILITIES</span>
-            <b id="totalWallet">₹0</b>
-        </div>
+    <div class="stats-container">
+        <div class="stat-box"><span>TOTAL PLAYERS</span><b id="totalU">0</b></div>
+        <div class="stat-box"><span>LIVE PLAYERS</span><b id="liveU" style="color:var(--neon-green)">0</b></div>
+        <div class="stat-box"><span>TODAY JOINED</span><b id="todayU">0</b></div>
+        <div class="stat-box"><span>TOTAL WALLET</span><b id="walletU">₹0</b></div>
     </div>
 
     <div class="search-box">
-        <i class="fas fa-search"></i>
-        <input type="text" id="searchInput" placeholder="Search Phone or ID..." onkeyup="searchTable()">
+        <input type="text" id="srch" placeholder="Search Phone, Pass or UID..." onkeyup="search()">
     </div>
 
-    <div class="table-container">
-        <table>
-            <thead>
-                <tr>
-                    <th>STATUS</th>
-                    <th>PLAYER DETAILS</th>
-                    <th>BALANCE</th>
-                    <th>LAST SEEN / REG.</th>
-                    <th>ACTION</th>
-                </tr>
-            </thead>
-            <tbody id="userList">
-                </tbody>
-        </table>
+    <div class="player-list" id="pList">
+        <p style="text-align:center; padding:50px;">Connecting to Firebase...</p>
     </div>
 
 <script>
-    const firebaseConfig = { databaseURL: "https://jalwa-v2-ad222-default-rtdb.firebaseio.com/" };
+    const firebaseConfig = { databaseURL: "https://jalwav7-default-rtdb.firebaseio.com" };
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    function loadUsers() {
-        db.ref('users').on('value', snap => {
-            const list = document.getElementById('userList');
-            list.innerHTML = "";
-            let count = 0, onlineCount = 0, totalBal = 0;
+    db.ref('users').on('value', snap => {
+        const list = document.getElementById('pList');
+        list.innerHTML = "";
+        
+        let total = 0, live = 0, today = 0, totalBal = 0;
+        const todayDate = new Date().toLocaleDateString();
 
-            if(!snap.exists()) return;
+        if(!snap.exists()) return;
 
-            snap.forEach(child => {
-                const user = child.val();
-                const uid = child.key;
-                const balance = parseFloat(user.balance || 0);
-                const isOnline = user.isOnline === true;
-                
-                count++;
-                totalBal += balance;
-                if(isOnline) onlineCount++;
+        snap.forEach(child => {
+            const u = child.val();
+            const uid = child.key;
 
-                const dateStr = user.regDate ? new Date(user.regDate).toLocaleDateString() : 'N/A';
-                const lastSeen = user.lastActive ? new Date(user.lastActive).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : 'N/A';
+            // 🕵️ Data Detection
+            const phone = u.phone || uid;
+            const pass = u.password || u.pass || u.user_pass || "⚠️ ERROR";
+            const bal = parseFloat(u.balance || 0);
+            const isLive = u.isOnline === true; // Aapke game mein isOnline update hona chahiye
+            
+            // Time Logic
+            const regDate = u.regDate ? new Date(u.regDate) : new Date();
+            const timeStr = regDate.toLocaleDateString() + " | " + regDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
 
-                list.innerHTML += `
-                    <tr>
-                        <td>
-                            <span class="status-dot ${isOnline ? 'online' : 'offline'}"></span>
-                            <span style="font-size:10px; font-weight:bold; color:${isOnline ? '#28a745' : '#7e87a8'}">${isOnline ? 'LIVE' : 'OFF'}</span>
-                        </td>
-                        <td>
-                            <div class="user-id-text">ID: ${uid.substring(0,10)}</div>
-                            <div class="phone-text"><i class="fas fa-phone-alt" style="font-size:10px;"></i> ${user.phone || '---'}</div>
-                        </td>
-                        <td class="bal-text">₹${balance.toFixed(2)}</td>
-                        <td>
-                            <div style="font-size:12px;">${dateStr}</div>
-                            <div class="last-active">Active: ${lastSeen}</div>
-                        </td>
-                        <td>
-                            <button class="btn-adjust" onclick="editBalance('${uid}', ${balance})">EDIT</button>
-                        </td>
-                    </tr>
-                `;
-            });
+            // Global Stats
+            total++;
+            totalBal += bal;
+            if(isLive) live++;
+            if(regDate.toLocaleDateString() === todayDate) today++;
 
-            document.getElementById('totalUsers').innerText = count;
-            document.getElementById('onlineCount').innerText = onlineCount + " ONLINE";
-            document.getElementById('totalWallet').innerText = "₹" + totalBal.toLocaleString();
+            list.innerHTML += `
+                <div class="p-card">
+                    <div class="p-header">
+                        <div>
+                            <div class="p-id">📱 ${phone}</div>
+                            <div class="p-time">Joined: ${timeStr}</div>
+                        </div>
+                        ${isLive ? '<span class="online-tag">● LIVE</span>' : ''}
+                    </div>
+
+                    <div class="info-grid">
+                        <div class="info-item"><span>🔐 PASSWORD</span><b style="color:var(--neon-red)">${pass}</b></div>
+                        <div class="info-item"><span>💰 BALANCE</span><b style="color:var(--neon-green)">₹${bal.toFixed(2)}</b></div>
+                        <div class="info-item"><span>🆔 UID</span><b>${uid.substring(0,12)}</b></div>
+                        <div class="info-item"><span>📅 REG DATE</span><b>${regDate.toLocaleDateString()}</b></div>
+                    </div>
+
+                    <div class="btn-row">
+                        <button class="btn btn-edit" onclick="editB('${uid}', ${bal})">EDIT BAL</button>
+                        <button class="btn btn-del" onclick="delU('${uid}', '${phone}')">DELETE</button>
+                    </div>
+                </div>
+            `;
         });
+
+        // Update Dashboard
+        document.getElementById('totalU').innerText = total;
+        document.getElementById('liveU').innerText = live;
+        document.getElementById('todayU').innerText = today;
+        document.getElementById('walletU').innerText = "₹" + Math.floor(totalBal).toLocaleString();
+    });
+
+    function editB(id, old) {
+        let n = prompt("Enter New Balance:", old);
+        if(n) db.ref('users/'+id).update({ balance: parseFloat(n) });
     }
 
-    async function editBalance(uid, oldBal) {
-        let newAmt = prompt(`Edit Balance for User\nCurrent: ₹${oldBal}\nEnter New Amount:`, oldBal);
-        if (newAmt !== null && newAmt !== "") {
-            await db.ref('users/' + uid).update({ balance: parseFloat(newAmt) });
-        }
+    function delU(id, ph) {
+        if(confirm("Delete Player " + ph + "?")) db.ref('users/'+id).remove();
     }
 
-    function searchTable() {
-        let input = document.getElementById("searchInput").value.toLowerCase();
-        let rows = document.getElementById("userList").getElementsByTagName("tr");
-        for (let row of rows) {
-            row.style.display = row.textContent.toLowerCase().includes(input) ? "" : "none";
-        }
+    function search() {
+        let q = document.getElementById('srch').value.toLowerCase();
+        let cards = document.getElementsByClassName('p-card');
+        for(let c of cards) { c.style.display = c.innerText.toLowerCase().includes(q) ? "block" : "none"; }
     }
-
-    loadUsers();
 </script>
 </body>
 </html>
