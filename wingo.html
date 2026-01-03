@@ -2,129 +2,115 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Wingo Pro Hack - Admin</title>
+    <title>Jalwa God Mode - Admin</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --bg: #06091b; --card: #10142d; --gold: #ffd700; --green: #1DB954; --red: #F44336; --violet: #673AB7; --cyan: #00ffca; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: white; margin: 0; padding: 10px; }
-        .header { text-align: center; padding: 15px; background: var(--card); border-bottom: 2px solid var(--cyan); margin-bottom: 15px; }
-        .color-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-        .color-card { padding: 15px 5px; border-radius: 12px; text-align: center; font-weight: bold; border: 2px solid transparent; position: relative; cursor: pointer;}
-        .amt-tag { display: block; font-size: 18px; margin-top: 5px; color: var(--gold); }
-        .num-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 20px; }
-        .num-ball { width: 100%; aspect-ratio: 1/1; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1px solid #333; cursor: pointer; font-weight: bold; position: relative; }
-        .num-amt { font-size: 9px; color: #fff; background: rgba(0,0,0,0.5); padding: 1px 3px; border-radius: 4px; position: absolute; bottom: 5px; }
-        .bg-green { background: var(--green); } .bg-red { background: var(--red); } .bg-violet { background: var(--violet); }
-        .bg-0 { background: linear-gradient(135deg, var(--red) 50%, var(--violet) 50%); }
-        .bg-5 { background: linear-gradient(135deg, var(--green) 50%, var(--violet) 50%); }
-        @keyframes danger-blink { 0%, 100% { opacity: 1; border-color: white; box-shadow: 0 0 15px white; } 50% { opacity: 0.7; border-color: red; box-shadow: 0 0 5px red; } }
-        .is-high-load { animation: danger-blink 0.6s infinite !important; }
-        .calc-panel { background: var(--card); padding: 15px; border-radius: 15px; border: 1px solid #1f2855; }
-        .calc-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #333; font-size: 14px; }
-        .timer-box { font-size: 24px; color: var(--gold); font-weight: bold; text-align: center; margin-bottom: 10px; font-family: monospace; }
-        #toast { visibility: hidden; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--cyan); color: #000; padding: 10px 20px; border-radius: 20px; font-weight: bold; z-index: 1000; }
-        #toast.show { visibility: visible; }
+        :root { --bg: #020617; --card: #0f172a; --primary: #00ffca; --green: #1DB954; --red: #ff4757; --violet: #9c27b0; }
+        body { font-family: sans-serif; background: var(--bg); color: white; margin: 0; padding: 10px; }
+        .header { background: var(--card); padding: 15px; border-bottom: 2px solid var(--primary); display:flex; justify-content:space-between; align-items:center; }
+        .timer-val { font-family: monospace; font-size: 24px; color: var(--primary); }
+        
+        .color-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin: 20px 0; }
+        .color-card { padding: 20px 10px; border-radius: 12px; text-align: center; font-weight: 900; cursor: pointer; transition: 0.3s; border: 2px solid transparent; position: relative;}
+        
+        .num-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+        .n-btn { width: 100%; aspect-ratio: 1; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: bold; font-size: 20px; cursor: pointer; border: 2px solid #1e293b; position: relative;}
+        
+        /* 🚨 ACTIVE FIX NEON BLINK */
+        @keyframes active-blink { 50% { box-shadow: 0 0 20px var(--primary); border-color: white; transform: scale(1.05); } }
+        .fixed-active { animation: active-blink 0.6s infinite; border-color: white !important; }
+
+        @keyframes bet-blink { 50% { background: #851c1c; } }
+        .high-bet { animation: bet-blink 0.4s infinite; border: 2px solid #fff !important; }
+
+        .analysis { background: var(--card); padding: 15px; border-radius: 15px; margin-top: 20px; border: 1px solid #1e293b; }
+        .row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px dashed #1e293b; }
+        .advice { background: rgba(0,255,202,0.1); padding: 10px; border-radius: 10px; text-align: center; font-weight: 900; color: var(--primary); border: 1px dashed var(--primary); margin-top: 15px; }
     </style>
 </head>
 <body>
-<div id="toast">Result Set!</div>
+
 <div class="header">
-    <div class="timer-box" id="timer">00:00</div>
-    <div id="pId" style="font-size:12px; color:#7e87a8;">Period: ...</div>
+    <div><small>PERIOD</small><br><b id="pIdDisplay" style="color:var(--primary)">...</b></div>
+    <div class="timer-val" id="timer">00:00</div>
 </div>
 
 <div class="color-row">
-    <div id="btnGreen" class="color-card bg-green" onclick="setResult('Green')">GREEN <span class="amt-tag" id="loadGreen">₹0</span></div>
-    <div id="btnViolet" class="color-card bg-violet" onclick="setResult('Violet')">VIOLET <span class="amt-tag" id="loadViolet">₹0</span></div>
-    <div id="btnRed" class="color-card bg-red" onclick="setResult('Red')">RED <span class="amt-tag" id="loadRed">₹0</span></div>
+    <div id="btnGreen" class="color-card" style="background:var(--green)" onclick="setFix('Green')">GREEN<br><span id="lG">₹0</span></div>
+    <div id="btnViolet" class="color-card" style="background:var(--violet)" onclick="setFix('Violet')">VIOLET<br><span id="lV">₹0</span></div>
+    <div id="btnRed" class="color-card" style="background:var(--red)" onclick="setFix('Red')">RED<br><span id="lR">₹0</span></div>
 </div>
 
-<div class="num-grid">
-    <div id="n0" class="num-ball bg-0" onclick="setResult(0)">0 <span class="num-amt" id="l0">₹0</span></div>
-    <div id="n1" class="num-ball bg-green" onclick="setResult(1)">1 <span class="num-amt" id="l1">₹0</span></div>
-    <div id="n2" class="num-ball bg-red" onclick="setResult(2)">2 <span class="num-amt" id="l2">₹0</span></div>
-    <div id="n3" class="num-ball bg-green" onclick="setResult(3)">3 <span class="num-amt" id="l3">₹0</span></div>
-    <div id="n4" class="num-ball bg-red" onclick="setResult(4)">4 <span class="num-amt" id="l4">₹0</span></div>
-    <div id="n5" class="num-ball bg-5" onclick="setResult(5)">5 <span class="num-amt" id="l5">₹0</span></div>
-    <div id="n6" class="num-ball bg-red" onclick="setResult(6)">6 <span class="num-amt" id="l6">₹0</span></div>
-    <div id="n7" class="num-ball bg-green" onclick="setResult(7)">7 <span class="num-amt" id="l7">₹0</span></div>
-    <div id="n8" class="num-ball bg-red" onclick="setResult(8)">8 <span id="l8" class="num-amt">₹0</span></div>
-    <div id="n9" class="num-ball bg-green" onclick="setResult(9)">9 <span id="l9" class="num-amt">₹0</span></div>
-</div>
+<div class="num-grid" id="nGrid"></div>
 
-<div class="calc-panel">
-    <h3 style="margin-top:0; color:var(--cyan); font-size:16px;"><i class="fas fa-calculator"></i> LIVE PROFIT ANALYSIS</h3>
-    <div class="calc-row"><span>Total Collection:</span><span id="totalColl" style="color:var(--gold)">₹0</span></div>
-    <div class="calc-row"><span>If Green Wins:</span><span id="ifGreen" style="color:var(--red)">-₹0</span></div>
-    <div class="calc-row"><span>If Red Wins:</span><span id="ifRed" style="color:var(--red)">-₹0</span></div>
-    <div id="advice" style="margin-top:10px; text-align:center; font-weight:bold; color:var(--cyan);">WAITING FOR BETS...</div>
+<div class="analysis">
+    <div class="row"><span>Total Collection:</span><b id="tColl">₹0</b></div>
+    <div class="row"><span>Payout If Green:</span><b id="pG" style="color:var(--red)">₹0</b></div>
+    <div class="row"><span>Payout If Red:</span><b id="pR" style="color:var(--red)">₹0</b></div>
+    <div class="advice" id="advice">ANALYZING BETS...</div>
+    <button onclick="setFix('none')" style="width:100%; padding:15px; margin-top:10px; background:none; color:gray; border:1px solid #333; border-radius:10px; font-weight:bold;">RESET AUTO MODE</button>
 </div>
 
 <script>
-    // ✅ SYNCED DATABASE URL
     const firebaseConfig = { databaseURL: "https://jalwav7-default-rtdb.firebaseio.com" };
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    function setResult(res) {
-        db.ref('gameControl/nextResult').set(res);
-        const t = document.getElementById('toast');
-        t.innerText = "RESULT SET TO: " + res;
-        t.className = "show";
-        setTimeout(() => t.className = "", 2000);
+    let grid = "";
+    for(let i=0; i<=9; i++){
+        let c = (i==0||i==5)?'#9c27b0':(i%2==0?'#ff4757':'#1DB954');
+        grid += `<div id="nb${i}" class="n-btn" style="background:${c}" onclick="setFix(${i})">${i}<br><span id="v${i}" style="font-size:10px">₹0</span></div>`;
+    }
+    document.getElementById('nGrid').innerHTML = grid;
+
+    function setFix(v) { 
+        db.ref('gameControl/manualResult').set(v); 
     }
 
-    function updateUI(pId) {
-        db.ref('bets/' + pId).on('value', snap => {
-            let loads = { Green:0, Violet:0, Red:0, 0:0, 1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0, 8:0, 9:0 };
-            let total = 0;
-            snap.forEach(child => {
-                let b = child.val();
-                if(loads.hasOwnProperty(b.sel)) {
-                    loads[b.sel] += Number(b.amt);
-                    total += Number(b.amt);
-                }
-            });
+    db.ref('gameControl/manualResult').on('value', snap => {
+        let v = snap.val();
+        document.querySelectorAll('.color-card, .n-btn').forEach(el => el.classList.remove('fixed-active'));
+        if(v === 'Green') document.getElementById('btnGreen').classList.add('fixed-active');
+        else if(v === 'Red') document.getElementById('btnRed').classList.add('fixed-active');
+        else if(v === 'Violet') document.getElementById('btnViolet').classList.add('fixed-active');
+        else if(typeof v === 'number') document.getElementById('nb'+v).classList.add('fixed-active');
+    });
 
-            const maxColor = Math.max(loads.Green, loads.Red, loads.Violet);
-            ['Green', 'Red', 'Violet'].forEach(c => {
-                document.getElementById('load' + c).innerText = '₹' + loads[c];
-                document.getElementById('btn' + c).classList.toggle('is-high-load', loads[c] > 0 && loads[c] === maxColor);
-            });
+    db.ref('gameControl/wingo/liveBets').on('value', snap => {
+        const bets = snap.val() || {};
+        let total = 0, gP = 0, rP = 0, max = 0, maxId = "";
+        const map = [
+            {id:'nb0',v:'v0',a:bets.num0||0},{id:'nb1',v:'v1',a:bets.num1||0},{id:'nb2',v:'v2',a:bets.num2||0},
+            {id:'nb3',v:'v3',a:bets.num3||0},{id:'nb4',v:'v4',a:bets.num4||0},{id:'nb5',v:'v5',a:bets.num5||0},
+            {id:'nb6',v:'v6',a:bets.num6||0},{id:'nb7',v:'v7',a:bets.num7||0},{id:'nb8',v:'v8',a:bets.num8||0},
+            {id:'nb9',v:'v9',a:bets.num9||0},{id:'btnGreen',v:'lG',a:bets.Green||0},
+            {id:'btnRed',v:'lR',a:bets.Red||0},{id:'btnViolet',v:'lV',a:bets.Violet||0}
+        ];
 
-            const maxNum = Math.max(...[0,1,2,3,4,5,6,7,8,9].map(n => loads[n]));
-            for(let i=0; i<=9; i++) {
-                document.getElementById('l' + i).innerText = '₹' + loads[i];
-                document.getElementById('n' + i).classList.toggle('is-high-load', loads[i] > 0 && loads[i] === maxNum);
-            }
-
-            document.getElementById('totalColl').innerText = '₹' + total;
-            let greenPay = (loads.Green * 2) + (loads[1]*9 + loads[3]*9 + loads[7]*9 + loads[9]*9) + (loads[5]*1.5 + loads.Violet*4.5);
-            let redPay = (loads.Red * 2) + (loads[2]*9 + loads[4]*9 + loads[6]*9 + loads[8]*9) + (loads[0]*1.5 + loads.Violet*4.5);
-            document.getElementById('ifGreen').innerText = '-₹' + greenPay.toFixed(0);
-            document.getElementById('ifRed').innerText = '-₹' + redPay.toFixed(0);
-
-            if(total > 0) {
-                let best = greenPay < redPay ? "GREEN" : "RED";
-                document.getElementById('advice').innerText = "SYSTEM ADVICE: " + best + " (LOW PAYOUT)";
-            }
+        map.forEach(m => {
+            total += m.a;
+            document.getElementById(m.v).innerText = "₹" + m.a;
+            document.getElementById(m.id).classList.remove('high-bet');
+            if(m.a > max) { max = m.a; maxId = m.id; }
         });
-    }
+        if(maxId && max > 0) document.getElementById(maxId).classList.add('high-bet');
+
+        gP = (bets.Green||0)*2 + (bets.num1||0)*9 + (bets.num3||0)*9 + (bets.num7||0)*9 + (bets.num9||0)*9;
+        rP = (bets.Red||0)*2 + (bets.num2||0)*9 + (bets.num4||0)*9 + (bets.num6||0)*9 + (bets.num8||0)*9;
+        
+        document.getElementById('tColl').innerText = "₹" + total;
+        document.getElementById('pG').innerText = "₹" + gP;
+        document.getElementById('pR').innerText = "₹" + rP;
+        if(total > 0) document.getElementById('advice').innerText = gP < rP ? "ADVICE: WIN GREEN" : "ADVICE: WIN RED";
+    });
 
     setInterval(() => {
-        const now = new Date();
-        const sec = now.getSeconds();
-        const rem = 30 - (sec % 30);
-        const pId = now.getFullYear().toString() + (now.getMonth() + 1).toString().padStart(2, '0') + now.getDate().toString().padStart(2, '0') + Math.floor(((now.getHours() * 3600) + (now.getMinutes() * 60) + sec) / 30);
-        document.getElementById('timer').innerText = "00:" + rem.toString().padStart(2, '0');
-        if(rem <= 5) document.getElementById('timer').style.color = "red"; else document.getElementById('timer').style.color = "var(--gold)";
-        if (document.getElementById('pId').innerText !== "Period: " + pId) {
-            document.getElementById('pId').innerText = "Period: " + pId;
-            updateUI(pId);
-        }
+        const now = new Date(); const rem = 30 - (now.getSeconds() % 30);
+        document.getElementById('timer').innerText = "00:" + rem.toString().padStart(2,'0');
+        let pid = now.getFullYear().toString() + (now.getMonth()+1).toString().padStart(2,'0') + now.getDate().toString().padStart(2,'0') + Math.floor(((now.getHours()*3600)+(now.getMinutes()*60)+now.getSeconds())/30);
+        document.getElementById('pIdDisplay').innerText = pid;
     }, 1000);
 </script>
 </body>
