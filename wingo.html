@@ -3,109 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Wingo Pro Control - Admin</title>
+    <title>Wingo Pro Hack - Admin</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --bg: #06091b; --card: #10142d; --gold: #ffd700; --green: #1DB954; --red: #ff4757; --violet: #9c27b0; --cyan: #00ffca; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: white; margin: 0; padding: 10px; overflow-x: hidden; }
-        
-        .header { text-align: center; padding: 15px; background: var(--card); border-bottom: 2px solid var(--cyan); margin-bottom: 15px; border-radius: 0 0 20px 20px; }
-        .timer-box { font-size: 30px; color: var(--gold); font-weight: bold; font-family: monospace; }
-
-        /* COLOR CARDS */
+        :root { --bg: #06091b; --card: #10142d; --gold: #ffd700; --green: #1DB954; --red: #F44336; --violet: #673AB7; --cyan: #00ffca; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: white; margin: 0; padding: 10px; }
+        .header { text-align: center; padding: 15px; background: var(--card); border-bottom: 2px solid var(--cyan); margin-bottom: 15px; }
         .color-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-        .color-card { padding: 20px 5px; border-radius: 12px; text-align: center; font-weight: bold; cursor: pointer; border: 2px solid transparent; transition: 0.2s; }
-        .color-card:active { transform: scale(0.9); }
-        .amt-tag { display: block; font-size: 16px; margin-top: 5px; color: white; background: rgba(0,0,0,0.3); border-radius: 5px; }
-
-        /* NUMBER BALLS */
+        .color-card { padding: 15px 5px; border-radius: 12px; text-align: center; font-weight: bold; border: 2px solid transparent; position: relative; cursor: pointer;}
+        .amt-tag { display: block; font-size: 18px; margin-top: 5px; color: var(--gold); }
         .num-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 20px; }
-        .num-ball { width: 100%; aspect-ratio: 1/1; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; font-weight: bold; position: relative; border: 2px solid #1f2855; }
-        .num-ball:active { transform: scale(0.8); }
-        .num-amt { font-size: 10px; color: #ffd700; position: absolute; bottom: 5px; }
-
-        .bg-green { background: var(--green); }
-        .bg-red { background: var(--red); }
-        .bg-violet { background: var(--violet); }
+        .num-ball { width: 100%; aspect-ratio: 1/1; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1px solid #333; cursor: pointer; font-weight: bold; position: relative; }
+        .num-amt { font-size: 9px; color: #fff; background: rgba(0,0,0,0.5); padding: 1px 3px; border-radius: 4px; position: absolute; bottom: 5px; }
+        .bg-green { background: var(--green); } .bg-red { background: var(--red); } .bg-violet { background: var(--violet); }
         .bg-0 { background: linear-gradient(135deg, var(--red) 50%, var(--violet) 50%); }
         .bg-5 { background: linear-gradient(135deg, var(--green) 50%, var(--violet) 50%); }
-
-        /* SELECTION HIGHLIGHT */
-        .selected { border: 3px solid white !important; box-shadow: 0 0 15px white; }
-
-        /* ANALYSIS PANEL */
+        @keyframes danger-blink { 0%, 100% { opacity: 1; border-color: white; box-shadow: 0 0 15px white; } 50% { opacity: 0.7; border-color: red; box-shadow: 0 0 5px red; } }
+        .is-high-load { animation: danger-blink 0.6s infinite !important; }
         .calc-panel { background: var(--card); padding: 15px; border-radius: 15px; border: 1px solid #1f2855; }
-        .calc-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #1f2855; }
-        
-        #toast { visibility: hidden; position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: var(--cyan); color: #000; padding: 12px 30px; border-radius: 30px; font-weight: bold; z-index: 10000; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
-        #toast.show { visibility: visible; animation: slideDown 0.3s; }
-        @keyframes slideDown { from { top: -50px; } to { top: 20px; } }
+        .calc-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #333; font-size: 14px; }
+        .timer-box { font-size: 24px; color: var(--gold); font-weight: bold; text-align: center; margin-bottom: 10px; font-family: monospace; }
+        #toast { visibility: hidden; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--cyan); color: #000; padding: 10px 20px; border-radius: 20px; font-weight: bold; z-index: 1000; }
+        #toast.show { visibility: visible; }
     </style>
 </head>
 <body>
-
 <div id="toast">Result Set!</div>
-
 <div class="header">
     <div class="timer-box" id="timer">00:00</div>
-    <div id="pIdDisplay" style="font-size:12px; color:#7e87a8; margin-top:5px;">Period: ...</div>
+    <div id="pId" style="font-size:12px; color:#7e87a8;">Period: ...</div>
 </div>
 
-<div style="padding: 10px; font-size: 12px; color: #7e87a8;">TAP TO FIX RESULT:</div>
 <div class="color-row">
-    <div id="btnGreen" class="color-card bg-green" onclick="setAdminResult('Green', this)">GREEN <span class="amt-tag" id="loadGreen">₹0</span></div>
-    <div id="btnViolet" class="color-card bg-violet" onclick="setAdminResult('Violet', this)">VIOLET <span class="amt-tag" id="loadViolet">₹0</span></div>
-    <div id="btnRed" class="color-card bg-red" onclick="setAdminResult('Red', this)">RED <span class="amt-tag" id="loadRed">₹0</span></div>
+    <div id="btnGreen" class="color-card bg-green" onclick="setResult('Green')">GREEN <span class="amt-tag" id="loadGreen">₹0</span></div>
+    <div id="btnViolet" class="color-card bg-violet" onclick="setResult('Violet')">VIOLET <span class="amt-tag" id="loadViolet">₹0</span></div>
+    <div id="btnRed" class="color-card bg-red" onclick="setResult('Red')">RED <span class="amt-tag" id="loadRed">₹0</span></div>
 </div>
 
 <div class="num-grid">
-    <div id="n0" class="num-ball bg-0" onclick="setAdminResult(0, this)">0 <span class="num-amt" id="l0">₹0</span></div>
-    <div id="n1" class="num-ball bg-green" onclick="setAdminResult(1, this)">1 <span class="num-amt" id="l1">₹0</span></div>
-    <div id="n2" class="num-ball bg-red" onclick="setAdminResult(2, this)">2 <span class="num-amt" id="l2">₹0</span></div>
-    <div id="n3" class="num-ball bg-green" onclick="setAdminResult(3, this)">3 <span class="num-amt" id="l3">₹0</span></div>
-    <div id="n4" class="num-ball bg-red" onclick="setAdminResult(4, this)">4 <span class="num-amt" id="l4">₹0</span></div>
-    <div id="n5" class="num-ball bg-5" onclick="setAdminResult(5, this)">5 <span class="num-amt" id="l5">₹0</span></div>
-    <div id="n6" class="num-ball bg-red" onclick="setAdminResult(6, this)">6 <span class="num-amt" id="l6">₹0</span></div>
-    <div id="n7" class="num-ball bg-green" onclick="setAdminResult(7, this)">7 <span class="num-amt" id="l7">₹0</span></div>
-    <div id="n8" class="num-ball bg-red" onclick="setAdminResult(8, this)">8 <span class="num-amt" id="l8">₹0</span></div>
-    <div id="n9" class="num-ball bg-green" onclick="setAdminResult(9, this)">9 <span class="num-amt" id="l9">₹0</span></div>
+    <div id="n0" class="num-ball bg-0" onclick="setResult(0)">0 <span class="num-amt" id="l0">₹0</span></div>
+    <div id="n1" class="num-ball bg-green" onclick="setResult(1)">1 <span class="num-amt" id="l1">₹0</span></div>
+    <div id="n2" class="num-ball bg-red" onclick="setResult(2)">2 <span class="num-amt" id="l2">₹0</span></div>
+    <div id="n3" class="num-ball bg-green" onclick="setResult(3)">3 <span class="num-amt" id="l3">₹0</span></div>
+    <div id="n4" class="num-ball bg-red" onclick="setResult(4)">4 <span class="num-amt" id="l4">₹0</span></div>
+    <div id="n5" class="num-ball bg-5" onclick="setResult(5)">5 <span class="num-amt" id="l5">₹0</span></div>
+    <div id="n6" class="num-ball bg-red" onclick="setResult(6)">6 <span class="num-amt" id="l6">₹0</span></div>
+    <div id="n7" class="num-ball bg-green" onclick="setResult(7)">7 <span class="num-amt" id="l7">₹0</span></div>
+    <div id="n8" class="num-ball bg-red" onclick="setResult(8)">8 <span id="l8" class="num-amt">₹0</span></div>
+    <div id="n9" class="num-ball bg-green" onclick="setResult(9)">9 <span id="l9" class="num-amt">₹0</span></div>
 </div>
 
 <div class="calc-panel">
-    <div style="color:var(--cyan); font-weight:bold; margin-bottom:10px;">LIVE BET ANALYSIS</div>
-    <div class="calc-row"><span>Total Bets:</span><span id="totalColl" style="color:var(--gold)">₹0</span></div>
-    <div class="calc-row" id="advice" style="color:var(--cyan); justify-content:center; border:none; font-weight:bold;">WAITING FOR DATA...</div>
+    <h3 style="margin-top:0; color:var(--cyan); font-size:16px;"><i class="fas fa-calculator"></i> LIVE PROFIT ANALYSIS</h3>
+    <div class="calc-row"><span>Total Collection:</span><span id="totalColl" style="color:var(--gold)">₹0</span></div>
+    <div class="calc-row"><span>If Green Wins:</span><span id="ifGreen" style="color:var(--red)">-₹0</span></div>
+    <div class="calc-row"><span>If Red Wins:</span><span id="ifRed" style="color:var(--red)">-₹0</span></div>
+    <div id="advice" style="margin-top:10px; text-align:center; font-weight:bold; color:var(--cyan);">WAITING FOR BETS...</div>
 </div>
 
 <script>
-    // --- 🚨 CRITICAL: DATABASE MATCHING ---
+    // ✅ SYNCED DATABASE URL
     const firebaseConfig = { databaseURL: "https://jalwav7-default-rtdb.firebaseio.com" };
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    function setAdminResult(val, el) {
-        // User game engine 'gameControl/nextResult' path par data bhej raha hai
-        db.ref('gameControl/nextResult').set(val).then(() => {
-            // UI Update
-            document.querySelectorAll('.color-card, .num-ball').forEach(b => b.classList.remove('selected'));
-            el.classList.add('selected');
-            
-            // Toast Show
-            const t = document.getElementById('toast');
-            t.innerText = "COMMAND SENT: " + val;
-            t.className = "show";
-            setTimeout(() => t.className = "", 2000);
-        });
+    function setResult(res) {
+        db.ref('gameControl/nextResult').set(res);
+        const t = document.getElementById('toast');
+        t.innerText = "RESULT SET TO: " + res;
+        t.className = "show";
+        setTimeout(() => t.className = "", 2000);
     }
 
-    function syncData(pId) {
-        // Real-time bets fetch karna user side se
+    function updateUI(pId) {
         db.ref('bets/' + pId).on('value', snap => {
             let loads = { Green:0, Violet:0, Red:0, 0:0, 1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0, 8:0, 9:0 };
             let total = 0;
-            
             snap.forEach(child => {
                 let b = child.val();
                 if(loads.hasOwnProperty(b.sel)) {
@@ -114,39 +89,41 @@
                 }
             });
 
-            // Update UI Amounts
-            ['Green', 'Red', 'Violet'].forEach(c => document.getElementById('load' + c).innerText = '₹' + loads[c]);
-            for(let i=0; i<=9; i++) document.getElementById('l' + i).innerText = '₹' + loads[i];
-            
+            const maxColor = Math.max(loads.Green, loads.Red, loads.Violet);
+            ['Green', 'Red', 'Violet'].forEach(c => {
+                document.getElementById('load' + c).innerText = '₹' + loads[c];
+                document.getElementById('btn' + c).classList.toggle('is-high-load', loads[c] > 0 && loads[c] === maxColor);
+            });
+
+            const maxNum = Math.max(...[0,1,2,3,4,5,6,7,8,9].map(n => loads[n]));
+            for(let i=0; i<=9; i++) {
+                document.getElementById('l' + i).innerText = '₹' + loads[i];
+                document.getElementById('n' + i).classList.toggle('is-high-load', loads[i] > 0 && loads[i] === maxNum);
+            }
+
             document.getElementById('totalColl').innerText = '₹' + total;
-            
+            let greenPay = (loads.Green * 2) + (loads[1]*9 + loads[3]*9 + loads[7]*9 + loads[9]*9) + (loads[5]*1.5 + loads.Violet*4.5);
+            let redPay = (loads.Red * 2) + (loads[2]*9 + loads[4]*9 + loads[6]*9 + loads[8]*9) + (loads[0]*1.5 + loads.Violet*4.5);
+            document.getElementById('ifGreen').innerText = '-₹' + greenPay.toFixed(0);
+            document.getElementById('ifRed').innerText = '-₹' + redPay.toFixed(0);
+
             if(total > 0) {
-                // Profit Advice
-                let gCost = loads.Green * 2;
-                let rCost = loads.Red * 2;
-                let advice = gCost < rCost ? "ADVICE: WIN GREEN" : "ADVICE: WIN RED";
-                document.getElementById('advice').innerText = advice;
+                let best = greenPay < redPay ? "GREEN" : "RED";
+                document.getElementById('advice').innerText = "SYSTEM ADVICE: " + best + " (LOW PAYOUT)";
             }
         });
     }
 
-    // Timer Sync (Matches User side 30s)
     setInterval(() => {
         const now = new Date();
-        const rem = 30 - (now.getSeconds() % 30);
-        const pId = now.getFullYear().toString() + (now.getMonth()+1) + now.getDate() + Math.floor(((now.getHours()*3600)+(now.getMinutes()*60)+now.getSeconds())/30);
-        
+        const sec = now.getSeconds();
+        const rem = 30 - (sec % 30);
+        const pId = now.getFullYear().toString() + (now.getMonth() + 1).toString().padStart(2, '0') + now.getDate().toString().padStart(2, '0') + Math.floor(((now.getHours() * 3600) + (now.getMinutes() * 60) + sec) / 30);
         document.getElementById('timer').innerText = "00:" + rem.toString().padStart(2, '0');
-        document.getElementById('pIdDisplay').innerText = "Period: " + pId;
-
-        // Auto clean selection after round ends
-        if(rem === 29) {
-            document.querySelectorAll('.color-card, .num-ball').forEach(b => b.classList.remove('selected'));
-        }
-
-        if (window.lastPid !== pId) {
-            window.lastPid = pId;
-            syncData(pId);
+        if(rem <= 5) document.getElementById('timer').style.color = "red"; else document.getElementById('timer').style.color = "var(--gold)";
+        if (document.getElementById('pId').innerText !== "Period: " + pId) {
+            document.getElementById('pId').innerText = "Period: " + pId;
+            updateUI(pId);
         }
     }, 1000);
 </script>
