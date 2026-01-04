@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -351,4 +350,226 @@
                 if(d && (d.status === 0 || d.status === 'pending')) {
                     found = true;
                     html += `
-                    <div class="player-card" style="bo
+                    <div class="player-card" style="border-left:4px solid ${type==='dep'?'var(--green)':'var(--red)'};">
+                        <div class="p-row">
+                            <b style="font-size:16px;">${type==='dep' ? 'RECHARGE' : 'WITHDRAWAL'}</b> 
+                            <b style="color:var(--primary); font-size:18px;">₹${d.amount}</b>
+                        </div>
+                        <div class="p-row"><span class="p-label">User Phone:</span> <span class="p-val">${d.phone || d.userId}</span></div>
+                        <div class="p-row"><span class="p-label">UTR/Ref:</span> <span class="p-val">${d.utr || d.txn_id || 'N/A'}</span></div>
+                        <div class="p-row"><span class="p-label">Time:</span> <span class="p-val">${d.date || 'Today'}</span></div>
+                        
+                        <div style="margin-top:12px; display:flex; gap:10px;">
+                            <button class="btn-edit" style="background:var(--green); flex:1;" onclick="handleAction('${path}', '${child.key}', 'approved', ${d.amount}, '${d.phone}')">APPROVE</button>
+                            <button class="btn-edit" style="background:var(--red); flex:1;" onclick="handleAction('${path}', '${child.key}', 'rejected', 0, '${d.phone}')">REJECT</button>
+                        </div>
+                    </div>`;
+                }
+            });
+            payDiv.innerHTML = found ? html : `<center style="color:var(--text-dim); padding:20px;">No Pending ${type==='dep'?'Deposits':'Withdrawals'}</center>`;
+        });
+    }
+
+    // 3. ACTION HANDLER (Balance Auto-Update)
+    async function handleAction(path, requestId, status, amount, phone) {
+        try {
+            if(status === 'approved' && amount > 0 && path.includes('recharge')) {
+                // Balance update logic for recharge
+                const userRef = db.ref('users/' + phone);
+                const currentBal = (await userRef.once('value')).val().balance || 0;
+                await userRef.update({ balance: Number(currentBal) + Number(amount) });
+            }
+            
+            // Mark Request as Finished
+            await db.ref(path + '/' + requestId).update({ status: status });
+            alert("Request " + status.toUpperCase() + " Successfully!");
+        } catch (e) {
+            alert("Error: " + e.message);
+        }
+    }
+
+    // Initialize these along with your killer engine
+    function initExtraSystems() {
+        syncUserList();
+        // Default load deposits
+        filterPay('dep');
+    }
+    
+    // Call this in your window.onload
+    window.addEventListener('load', initExtraSystems);
+</script>
+<script>
+    // --- JALWA PRO DEEP CRAWLER (ALL-FOLDER SCANNER) ---
+    async function filterPay(type) {
+        const payDiv = document.getElementById('payList');
+        payDiv.innerHTML = "<center style='padding:40px;'><i class='fas fa-sync fa-spin'></i> DEEP SCANNING DATABASE...</center>";
+        
+        let found = false;
+        let html = "";
+
+        // Pura database ek baar fetch karo (Sirf pending requests ke liye)
+        // Note: Agar database bahut bada hai toh paths specify karna behtar hai
+        const allPaths = ['requests', 'payments', 'recharge', 'withdraw', 'deposits', 'all_recharge'];
+
+        for (let root of allPaths) {
+            await db.ref(root).once('value', (snapshot) => {
+                if (!snapshot.exists()) return;
+
+                // Recursive function jo har kone mein check karegi
+                snapshot.forEach(child => {
+                    // Agar folder ke andar phone numbers hain (Nested structure)
+                    child.forEach(item => {
+                        let d = item.val();
+                        // Agar direct data hai ya nested
+                        if (!d.status) d = item.val(); 
+
+                        if (d && (d.status == 'pending' || d.status == 0 || d.status == '0')) {
+                            // Filter for Deposit/Withdraw
+                            const isDeposit = (root.includes('recharge') || root.includes('deposit') || d.type == 'recharge');
+                            
+                            if ((type === 'dep' && isDeposit) || (type === 'wit' && !isDeposit)) {
+                                found = true;
+                                html += `
+                                <div class="player-card" style="border-left:5px solid ${type==='dep'?'#00c853':'#ff3d00'}; margin-bottom:15px; background:#10142d; padding:15px; border-radius:12px;">
+                                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                                        <b style="color:var(--primary)">₹${d.amount}</b>
+                                        <small style="opacity:0.5; font-size:9px;">Path: ${root}/${child.key}</small>
+                                    </div>
+                                    <div style="margin:10px 0; font-size:12px;">
+                                        <div>Phone: <b>${d.phone || d.userId || child.key}</b></div>
+                                        <div>UTR: <b>${d.utr || 'N/A'}</b></div>
+                                    </div>
+                                    <div style="display:flex; gap:8px;">
+                                        <button class="btn-edit" style="background:#00c853; flex:1;" onclick="finalForceAction('${root}/${child.key}/${item.key}', 'approved', ${d.amount}, '${d.phone || d.userId || child.key}')">APPROVE</button>
+                                        <button class="btn-edit" style="background:#ff3d00; flex:1;" onclick="finalForceAction('${root}/${child.key}/${item.key}', 'rejected', 0, '')">REJECT</button>
+                                    </div>
+                                </div>`;
+                            }
+                        }
+                    });
+                });
+            });
+        }
+
+        payDiv.innerHTML = found ? html : "<center style='padding:50px;'>No Pending Requests Found.<br><small>Firebase mein 'status' check karein.</small></center>";
+    }
+
+    async function finalForceAction(fullPath, status, amount, uid) {
+        if(!confirm("Confirm " + status + "?")) return;
+        try {
+            // 1. Status Update
+            await db.ref(fullPath).update({ status: status });
+            
+            // 2. Balance Update (For Recharge)
+            if (status === 'approved' && amount > 0) {
+                // UID/Phone dono check karega
+                const userRef = db.ref('users/' + uid);
+                const uSnap = await userRef.once('value');
+                if (uSnap.exists()) {
+                    let b = Number(uSnap.val().balance || 0) + Number(amount);
+                    await userRef.update({ balance: b });
+                }
+            }
+            alert("Done!");
+            location.reload();
+        } catch(e) { alert(e.message); }
+    }
+</script>
+<script>
+    // --- JALWA PRO AUTO-PATH DETECTOR ---
+    let currentMode = 'dep';
+
+    async function filterPay(type) {
+        currentMode = type;
+        const payDiv = document.getElementById('payList');
+        payDiv.innerHTML = "<center style='padding:40px;'><i class='fas fa-satellite-dish fa-spin'></i> SCANNING NESTED FOLDERS...</center>";
+        
+        let htmlContent = "";
+        let found = false;
+
+        // Aapke Firebase ke main folders jahan data ho sakta hai
+        const roots = ['recharge', 'withdrawal', 'requests', 'payments', 'deposits'];
+
+        for (let root of roots) {
+            const snap = await db.ref(root).once('value');
+            if (!snap.exists()) continue;
+
+            const rootData = snap.val();
+
+            // Loop 1: Folder ke andar (e.g., 'recharge')
+            for (let key1 in rootData) {
+                const level1 = rootData[key1];
+
+                // Check if this is the record or another folder (Phone Number)
+                if (level1.status !== undefined) {
+                    // Direct Record found
+                    if (isMatching(level1, type)) {
+                        found = true;
+                        htmlContent += renderCard(`${root}/${key1}`, level1, type);
+                    }
+                } else {
+                    // Loop 2: Nested Folder (e.g., 'recharge/9876543210/push_id')
+                    for (let key2 in level1) {
+                        const level2 = level1[key2];
+                        if (level2 && (level2.status == 'pending' || level2.status == 0)) {
+                            if (isMatching(level2, type)) {
+                                found = true;
+                                htmlContent += renderCard(`${root}/${key1}/${key2}`, level2, type);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        payDiv.innerHTML = found ? htmlContent : `<center style="padding:50px; color:#555;">No Pending Requests Found.<br><small>Firebase URL Linked: ${firebaseConfig.databaseURL}</small></center>`;
+    }
+
+    function isMatching(data, type) {
+        // Pending status check
+        if (data.status != 'pending' && data.status != 0) return false;
+        // Type check (Recharge vs Withdrawal)
+        if (type === 'dep') {
+            return data.type === 'recharge' || data.amount > 0; // Adjust as per your data
+        } else {
+            return data.type === 'withdrawal' || data.bankName !== undefined;
+        }
+    }
+
+    function renderCard(fullPath, d, type) {
+        return `
+        <div class="player-card" style="border-left:5px solid ${type==='dep'?'#00c853':'#ff3d00'}; margin-bottom:15px; background:#10142d; padding:15px; border-radius:12px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <b style="color:var(--primary); font-size:18px;">₹${d.amount}</b>
+                <small style="opacity:0.4; font-size:9px;">${fullPath}</small>
+            </div>
+            <div style="margin:10px 0; font-size:12px; color:#a4b0be;">
+                <div>Phone: <b style="color:#fff">${d.phone || d.userId || 'User'}</b></div>
+                <div>UTR: <b style="color:#fff">${d.utr || d.txn_id || 'N/A'}</b></div>
+            </div>
+            <div style="display:flex; gap:8px;">
+                <button class="btn-edit" style="background:#00c853; flex:1;" onclick="executeAction('${fullPath}', 'approved', ${d.amount}, '${d.phone || d.userId}')">APPROVE</button>
+                <button class="btn-edit" style="background:#ff3d00; flex:1;" onclick="executeAction('${fullPath}', 'rejected', 0, '')">REJECT</button>
+            </div>
+        </div>`;
+    }
+
+    async function executeAction(path, status, amount, uid) {
+        if(!confirm("Are you sure?")) return;
+        try {
+            await db.ref(path).update({ status: status });
+            if (status === 'approved' && amount > 0) {
+                // Try to update balance in 'users' folder
+                const userRef = db.ref('users/' + uid);
+                const uSnap = await userRef.once('value');
+                if (uSnap.exists()) {
+                    await userRef.update({ balance: Number(uSnap.val().balance || 0) + Number(amount) });
+                }
+            }
+            alert("Action Successful!");
+            filterPay(currentMode);
+        } catch(e) { alert("Error: " + e.message); }
+    }
+</script>
+</body>
+</html>
