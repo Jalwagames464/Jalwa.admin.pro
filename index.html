@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -42,8 +43,11 @@
 
         .waiting-blink { animation: wait-fade 1.5s infinite; color: var(--text-dim); font-style: italic; }
         @keyframes wait-fade { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
-        .bet-active-blink { animation: flash-white 0.6s infinite alternate; border-color: #fff !important; }
-        @keyframes flash-white { from { box-shadow: 0 0 2px #fff; } to { box-shadow: 0 0 15px #fff; } }
+        
+        /* 5. RED BLINKING FOR ACTIVE BETS */
+        .bet-active-blink { animation: red-flash 0.5s infinite alternate; border: 2px solid #ff3d00 !important; }
+        @keyframes red-flash { from { box-shadow: 0 0 2px #ff3d00; background-color: initial; } to { box-shadow: 0 0 15px #ff3d00; background-color: #550000; } }
+        
         .fix-active { border: 3px solid #fff !important; transform: scale(1.05); box-shadow: 0 0 20px var(--primary); z-index: 10; }
 
         .pay-nav { display: flex; gap: 10px; margin-bottom: 20px; }
@@ -101,9 +105,10 @@
             <div class="p-row"><span>Total Red:</span><b id="statR" style="color:var(--red)">₹0</b></div>
             <div class="p-row"><span>Total Violet:</span><b id="statV" style="color:var(--violet)">₹0</b></div>
             <hr style="border:0; border-top:1px solid #2d3748; margin:12px 0;">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-size:12px; font-weight:bold; color:var(--blue)">SMART ADVICE:</span>
-                <span id="safeAdvice" class="waiting-blink">WAITING FOR PLAYER BETS...</span>
+            <div style="display:block; justify-content:space-between; align-items:center;">
+                <span style="font-size:12px; font-weight:bold; color:var(--blue)">SMART ADVICE:</span><br>
+                <div id="safeAdvice" class="waiting-blink">WAITING FOR PLAYER BETS...</div>
+                <div id="numberAdvice" style="margin-top:10px; font-size:13px; color:var(--primary);"></div>
             </div>
         </div>
         <button onclick="db.ref('gameControl/manualResult').set('none')" style="width:100%; margin-top:15px; padding:15px; background:#1e293b; color:white; border:0; border-radius:10px; font-weight:bold; letter-spacing: 1px;">RESET TO AUTO MODE</button>
@@ -129,6 +134,10 @@
     const db = firebase.database();
 
     let currentTimer = 30;
+    let lastNumber = -1; // 2. Anti-repeat check
+
+    const trends = [['G','R','G','R'], ['G','G','R','R'], ['G','R','R','G'], ['R','R','R','G']];
+    let activeTrend = trends[Math.floor(Math.random()*trends.length)];
 
     function switchTab(id, el) {
         document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
@@ -163,7 +172,6 @@
         db.ref('gameControl/wingo/liveBets').on('value', snap => {
             const bets = snap.val() || {};
             let g = Number(bets.Green || 0), r = Number(bets.Red || 0), v = Number(bets.Violet || 0);
-            let totalVal = g + r + v;
             
             document.getElementById('sumGreen').innerText = "₹"+g;
             document.getElementById('sumRed').innerText = "₹"+r;
@@ -172,42 +180,38 @@
             document.getElementById('statR').innerText = "₹"+r;
             document.getElementById('statV').innerText = "₹"+v;
 
-            const isActive = currentTimer > 2;
-            document.getElementById('btnGreen').classList.toggle('bet-active-blink', isActive && g > 0);
-            document.getElementById('btnRed').classList.toggle('bet-active-blink', isActive && r > 0);
-            document.getElementById('btnViolet').classList.toggle('bet-active-blink', isActive && v > 0);
+            // 5. Red Blinking for Colors
+            document.getElementById('btnGreen').classList.toggle('bet-active-blink', g > 0);
+            document.getElementById('btnRed').classList.toggle('bet-active-blink', r > 0);
+            document.getElementById('btnViolet').classList.toggle('bet-active-blink', v > 0);
 
+            let numList = [];
             for(let i=0; i<=9; i++) {
                 let nAmt = Number(bets['num'+i] || 0);
                 document.getElementById('vn'+i).innerText = "₹"+nAmt;
-                document.getElementById('n'+i).classList.toggle('bet-active-blink', isActive && nAmt > 0);
+                // 5. Red Blinking for Numbers
+                document.getElementById('n'+i).classList.toggle('bet-active-blink', nAmt > 0);
+                numList.push({id: i, amt: nAmt});
             }
 
             let adv = document.getElementById('safeAdvice');
-            if(totalVal === 0) {
+            let nAdv = document.getElementById('numberAdvice');
+            
+            if(g+r+v + numList.reduce((a,b)=>a+b.amt, 0) === 0) {
                 adv.innerText = "WAITING FOR PLAYER BETS...";
                 adv.className = "waiting-blink";
-                adv.style.color = "#555";
+                nAdv.innerText = "";
             } else {
                 adv.className = "";
-                if (g > 0 && r > 0 && v > 0) {
-                    if (g === r && r === v) { 
-                        adv.innerText = "ALL EQUAL: TARGET GREEN/RED"; adv.style.color = "var(--primary)"; 
-                    } else {
-                        let payoutV = (v * 4.5) + (Math.max(g,r) * 1.5);
-                        let payoutG = g * 2;
-                        let payoutR = r * 2;
-                        let minPayout = Math.min(payoutV, payoutG, payoutR);
-                        
-                        if (minPayout === payoutV) { adv.innerText = "BEST PROFIT: VIOLET"; adv.style.color = "var(--violet)"; }
-                        else if (minPayout === payoutG) { adv.innerText = "BEST PROFIT: GREEN"; adv.style.color = "var(--green)"; }
-                        else { adv.innerText = "BEST PROFIT: RED"; adv.style.color = "var(--red)"; }
-                    }
-                } else if (g === r && g > 0) {
-                    adv.innerText = "EQUAL G/R: TARGET VIOLET"; adv.style.color = "var(--violet)";
-                } else {
-                    adv.innerText = (g < r) ? "TARGET: GREEN" : "TARGET: RED"; adv.style.color = "var(--primary)";
-                }
+                // 7. If two colors equal, target third
+                if (g === r && g > 0) adv.innerText = "TARGET: VIOLET (Equal Red/Green)";
+                else if (g === v && g > 0) adv.innerText = "TARGET: RED (Equal Green/Violet)";
+                else if (r === v && r > 0) adv.innerText = "TARGET: GREEN (Equal Red/Violet)";
+                else adv.innerText = (g < r) ? "TARGET: GREEN" : "TARGET: RED";
+                
+                // 8. Number Advice Section
+                numList.sort((a,b) => a.amt - b.amt);
+                nAdv.innerText = "SAFE NUMBERS: " + numList[0].id + ", " + numList[1].id;
             }
         });
 
@@ -218,14 +222,8 @@
                 h += `<div class="player-card">
                     <div class="p-row"><span style="color:var(--primary); font-size:16px;">${u.username || 'User'}</span> <span class="p-val" style="color:var(--green)">₹${Number(u.balance || 0).toFixed(2)}</span></div>
                     <div class="p-row"><span class="p-label">Phone:</span> <span class="p-val">${u.phone || 'N/A'}</span></div>
-                    <div class="p-row"><span class="p-label">UID:</span> <span class="p-val">${child.key}</span></div>
-                    <div class="p-row">
-                        <span class="p-label">Dep: <b style="color:var(--green)">₹${u.total_deposit || 0}</b></span>
-                        <span class="p-label">Wit: <b style="color:var(--red)">₹${u.total_withdrawal || 0}</b></span>
-                    </div>
                     <div style="margin-top:10px; display:flex; gap:10px;">
                         <button class="btn-edit" onclick="editBal('${u.phone}')">EDIT BAL</button>
-                        <button class="btn-edit" style="background:#444" onclick="alert('Pass: ${u.password}')">PASS</button>
                     </div>
                 </div>`;
             });
@@ -243,95 +241,114 @@
         });
     }
 
+    // 4. Advanced Killer Mode & 9. Combined Payout Logic
     async function runKillerEngine() {
         const isK = (await db.ref('admin_settings/killerMode').once('value')).val();
         if(!isK) return;
-        const b = (await db.ref('gameControl/wingo/liveBets').once('value')).val() || {};
+        const snap = await db.ref('gameControl/wingo/liveBets').once('value');
+        const b = snap.val() || {};
+        
         let g = Number(b.Green || 0), r = Number(b.Red || 0), v = Number(b.Violet || 0);
-        if(g === 0 && r === 0 && v === 0) return;
+        let numberScores = [];
 
-        let final = "";
-        if (g > 0 && r > 0 && v > 0) {
-            if (g === r && r === v) { 
-                final = Math.random() > 0.5 ? 'Green' : 'Red'; 
-            } else {
-                let payoutV = (v * 4.5) + (Math.max(g,r) * 1.5);
-                let payoutG = g * 2;
-                let payoutR = r * 2;
-                let minPayout = Math.min(payoutV, payoutG, payoutR);
-                if (minPayout === payoutV) final = 'Violet';
-                else if (minPayout === payoutG) final = 'Green';
-                else final = 'Red';
-            }
-        } else if (g === r && g > 0) { final = 'Violet'; }
-        else { final = (g < r) ? 'Green' : 'Red'; }
-        db.ref('gameControl/manualResult').set(final);
+        for(let i=0; i<=9; i++){
+            let nAmt = Number(b['num'+i] || 0);
+            // 9. Multiplier logic: Number (x9), Color (x2), Violet (x4.5)
+            let risk = (nAmt * 9); 
+            if(i===0) risk += (v*4.5) + (r*1.5);
+            else if(i===5) risk += (v*4.5) + (g*1.5);
+            else if(i%2===0) risk += (r*2);
+            else risk += (g*2);
+
+            // 2. Anti-repeat check
+            if(i === lastNumber) risk += 100000; 
+
+            // 6. If all equal, avoid violet (0/5)
+            if(g===r && r===v && g > 0 && (i===0 || i===5)) risk += 50000;
+
+            numberScores.push({id: i, score: risk});
+        }
+
+        // 1. Lowest score wins
+        numberScores.sort((a,b) => a.score - b.score);
+        let finalNum = numberScores[0].id;
+        
+        lastNumber = finalNum;
+        db.ref('gameControl/manualResult').set(finalNum);
     }
 
     function toggleKiller() { db.ref('admin_settings/killerMode').set(document.getElementById('killerToggle').checked); }
     function manualFix(v) { db.ref('gameControl/manualResult').set(v); }
     function editBal(ph) { let b = prompt("New Bal:"); if(b) db.ref('users/'+ph).update({ balance: Number(b) }); }
-    
-    function filterPay(type) {
-        document.getElementById('payList').innerHTML = "<center>Checking database...</center>";
-        // Attempt multiple paths common in these scripts
-        const paths = type === 'dep' ? ['deposits', 'payments/deposit', 'recharge'] : ['withdrawals', 'payments/withdraw', 'withdraw'];
-        
-        let foundAny = false;
-        let html = "";
+</script>
+<script>
+    // 1. PLAYER LIST SYSTEM (With Search & Full Details)
+    function syncUserList() {
+        const userDiv = document.getElementById('userList');
+        const searchInput = document.getElementById('uSearch');
 
-        paths.forEach(path => {
-            db.ref(path).once('value', snap => {
-                snap.forEach(c => {
-                    let d = c.val();
-                    if(d && (d.status === 'pending' || d.status === 0)) {
-                        foundAny = true;
-                        html += `<div class="player-card">
-                            <div class="p-row"><b>${type.toUpperCase()}</b> <b>₹${d.amount}</b></div>
-                            <div class="p-row"><span>${d.phone || d.uid || 'User'}</span> <small>${path}</small></div>
-                            <div style="margin-top:10px; display:flex; gap:10px;">
-                                <button class="btn-edit" style="background:var(--green); flex:1" onclick="act('${path}','${c.key}','approved')">APPROVE</button>
-                                <button class="btn-edit" style="background:var(--red); flex:1" onclick="act('${path}','${c.key}','rejected')">REJECT</button>
-                            </div>
-                        </div>`;
-                    }
-                });
-                if(foundAny) document.getElementById('payList').innerHTML = html;
-                else if (!foundAny && path === paths[paths.length-1]) {
-                     document.getElementById('payList').innerHTML = "<center>No Pending Requests Found</center>";
-                }
+        db.ref('users').on('value', snap => {
+            let html = "";
+            let players = [];
+            snap.forEach(child => {
+                let u = child.val();
+                u.uid = child.key; // Unique ID save karo
+                players.push(u);
             });
+
+            const render = (data) => {
+                html = "";
+                data.forEach(u => {
+                    html += `
+                    <div class="player-card" style="border-left:4px solid var(--blue);">
+                        <div class="p-row">
+                            <span style="color:var(--primary); font-size:16px; font-weight:bold;">${u.username || 'No Name'}</span> 
+                            <span class="p-val" style="color:var(--green)">₹${Number(u.balance || 0).toFixed(2)}</span>
+                        </div>
+                        <div class="p-row"><span class="p-label">Phone:</span> <span class="p-val">${u.phone || 'N/A'}</span></div>
+                        <div class="p-row"><span class="p-label">UID:</span> <span class="p-val">${u.uid}</span></div>
+                        <div class="p-row"><span class="p-label">Pass:</span> <span class="p-val" style="color:var(--primary)">${u.password || '****'}</span></div>
+                        <div class="p-row">
+                            <span class="p-label">Total Dep: <b style="color:var(--green)">₹${u.total_recharge || 0}</b></span>
+                            <span class="p-label">Total Wit: <b style="color:var(--red)">₹${u.total_withdrawal || 0}</b></span>
+                        </div>
+                        <div style="margin-top:10px; display:flex; gap:10px;">
+                            <button class="btn-edit" onclick="editBal('${u.phone}')">EDIT BAL</button>
+                            <button class="btn-edit" style="background:#dc3545" onclick="deleteUser('${u.uid}')"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </div>`;
+                });
+                userDiv.innerHTML = html || "<center>No Players Found</center>";
+            };
+
+            render(players);
+
+            // Search Logic
+            if(searchInput) {
+                searchInput.oninput = () => {
+                    let filtered = players.filter(p => p.phone.includes(searchInput.value));
+                    render(filtered);
+                };
+            }
         });
     }
 
-    function act(path, id, s) { 
-        db.ref(path+'/'+id).update({status: s}).then(() => {
-            alert("Success!");
-            location.reload(); 
-        }); 
-    }
-</script>
-<script>
-    // --- PAYMENTS FETCHING & ACTION SCRIPT ---
-    
+    // 2. PAYMENT REQUEST SYSTEM (Recharge & Withdraw)
     function filterPay(type) {
-        // Aapki file ke mutabik sahi path: requests/deposits ya requests/withdrawals
-        const path = type === 'dep' ? 'requests/deposits' : 'requests/withdrawals';
+        const payDiv = document.getElementById('payList');
+        payDiv.innerHTML = "<center><i class='fas fa-spinner fa-spin'></i> Fetching Requests...</center>";
+        
+        // Accurate Database Paths
+        const path = type === 'dep' ? 'requests/recharge' : 'requests/withdrawal';
         
         db.ref(path).on('value', snap => {
             let html = "";
             let found = false;
             
-            snap.forEach(c => {
-                let d = c.val();
-                // Sirf 'pending' requests dikhane ke liye
-                if(d && d.status === 'pending') {
+            snap.forEach(child => {
+                let d = child.val();
+                // Status 0 or 'pending' means new request
+                if(d && (d.status === 0 || d.status === 'pending')) {
                     found = true;
                     html += `
-                    <div class="player-card" style="border-left:4px solid ${type==='dep'?'#00c853':'#ff3d00'}; background:#10142d; margin-bottom:10px; padding:15px; border-radius:12px; color:white;">
-                        <div style="display:flex; justify-content:space-between;">
-                            <b>${type==='dep'?'RECHARGE':'WITHDRAW'}</b> 
-                            <b style="color:#ffcc00">₹${d.amount}</b>
-                        </div>
-                        <div style="font-size:12px; margin:5px 0;">User: ${d.userId}</div>
-                        <div sty
+                    <div class="player-card" style="bo
