@@ -17,79 +17,70 @@
         body { background: var(--bg); color: var(--text); padding-bottom: 30px; }
 
         .top-nav { background: var(--card); padding: 15px; border-bottom: 2px solid #1e293b; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
-        .killer-box { background: linear-gradient(90deg, #221111, #10142d); border: 1px solid var(--red); margin: 15px; padding: 15px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 0 20px rgba(255,0,0,0.15); }
-        
+        .killer-box { background: linear-gradient(90deg, #111, #10142d); border: 1px solid var(--red); margin: 15px; padding: 15px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 0 20px rgba(255,0,0,0.2); }
+
         .tab-bar { display: flex; background: var(--card); margin: 10px 15px; border-radius: 12px; padding: 5px; gap: 5px; border: 1px solid #2d3748; }
-        .tab-btn { flex: 1; padding: 12px; border: none; background: transparent; color: var(--text-dim); font-weight: bold; cursor: pointer; border-radius: 10px; font-size: 12px; transition: 0.3s; }
-        .tab-btn.active { background: var(--primary); color: #000; box-shadow: 0 4px 10px rgba(255, 204, 0, 0.3); }
+        .tab-btn { flex: 1; padding: 12px; border: none; background: transparent; color: var(--text-dim); font-weight: bold; cursor: pointer; border-radius: 10px; font-size: 11px; transition: 0.3s; text-align: center;}
+        .tab-btn.active { background: var(--primary); color: #000; }
 
         .container { padding: 0 15px; }
         .section { display: none; }
         .section.active { display: block; }
 
         .color-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
-        .c-btn { padding: 20px 5px; border-radius: 12px; text-align: center; font-weight: 900; cursor: pointer; border: 2px solid transparent; position: relative; }
-        .c-btn span { display: block; font-size: 12px; margin-top: 8px; background: rgba(0,0,0,0.4); border-radius: 5px; padding: 2px; }
+        .c-btn { padding: 20px 5px; border-radius: 12px; text-align: center; font-weight: 900; cursor: pointer; position: relative; border: 2px solid transparent; }
+        .c-btn span { display: block; font-size: 12px; margin-top: 8px; background: rgba(0,0,0,0.4); border-radius: 5px; }
         
         .grid-nums { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
-        .num-btn { aspect-ratio: 1; border-radius: 50%; border: 2px solid #2d3748; display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer; position: relative; font-size: 18px; }
-        .num-amt { position: absolute; top: -12px; font-size: 10px; color: var(--primary); font-weight: bold; background: #000; padding: 1px 5px; border-radius: 4px; border: 1px solid #333; }
+        .num-btn { aspect-ratio: 1; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer; position: relative; font-size: 18px; border: 2px solid #333; }
+        .num-amt { position: absolute; top: -12px; font-size: 10px; color: var(--primary); background: #000; padding: 1px 4px; border-radius: 4px; border: 1px solid #444; }
 
-        .player-card { background: var(--card); border-radius: 15px; padding: 15px; margin-bottom: 15px; border-left: 4px solid var(--blue); position: relative; }
-        .p-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13px; }
+        .player-card { background: var(--card); border-radius: 12px; padding: 15px; margin-bottom: 15px; border-left: 4px solid var(--blue); }
+        .p-row { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 13px; }
         .p-label { color: var(--text-dim); }
-        .p-val { font-weight: bold; color: #fff; }
-
-        .waiting-blink { animation: wait-fade 1.5s infinite; color: var(--text-dim); font-style: italic; }
-        @keyframes wait-fade { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+        .p-val { color: #fff; font-weight: bold; }
         
-        /* 5. RED BLINKING FOR ACTIVE BETS */
-        .bet-active-blink { animation: red-flash 0.5s infinite alternate; border: 2px solid #ff3d00 !important; }
-        @keyframes red-flash { from { box-shadow: 0 0 2px #ff3d00; background-color: initial; } to { box-shadow: 0 0 15px #ff3d00; background-color: #550000; } }
+        .blink { animation: blinker 1s infinite; }
+        @keyframes blinker { 50% { opacity: 0.3; } }
         
-        .fix-active { border: 3px solid #fff !important; transform: scale(1.05); box-shadow: 0 0 20px var(--primary); z-index: 10; }
+        .bet-active-blink { animation: red-flash 0.6s infinite alternate; }
+        @keyframes red-flash { from { box-shadow: 0 0 0px #ff3d00; } to { box-shadow: 0 0 15px #ff3d00; background-color: #500; } }
+        
+        .fix-active { border: 3px solid #fff !important; transform: scale(1.05); box-shadow: 0 0 15px var(--primary); z-index: 5; }
 
-        .pay-nav { display: flex; gap: 10px; margin-bottom: 20px; }
-        .pay-nav button { flex: 1; padding: 12px; border-radius: 8px; border: none; font-weight: bold; color: #fff; cursor: pointer; }
-
-        .btn-edit { background: var(--blue); padding: 8px 15px; border-radius: 6px; border: none; color: #fff; font-weight: bold; font-size: 12px; cursor: pointer; }
-        .switch { position: relative; display: inline-block; width: 50px; height: 26px; }
-        .switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #333; transition: .4s; border-radius: 34px; }
-        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
-        input:checked + .slider { background-color: var(--red); }
-        input:checked + .slider:before { transform: translateX(24px); }
+        input[type="text"] { width: 100%; padding: 12px; background: #161d33; border: 1px solid #2d3748; color: white; border-radius: 8px; margin-bottom: 10px; }
+        .btn-action { padding: 8px 12px; border-radius: 6px; border: none; font-size: 11px; font-weight: bold; cursor: pointer; color: white; }
     </style>
 </head>
 <body onload="initAdmin()">
 
 <div class="top-nav">
     <div style="font-weight: 900; color: var(--primary); letter-spacing: 1px;">JALWA PRO ADMIN</div>
-    <div id="liveClock" style="font-size: 12px; color: var(--green); background: rgba(0,200,83,0.1); padding: 4px 10px; border-radius: 20px;">00:00:00</div>
+    <div id="liveClock" style="font-size: 12px; color: var(--green);">00:00:00</div>
 </div>
 
 <div class="killer-box">
     <div>
-        <b style="color:var(--red)"><i class="fas fa-skull-crossbones"></i> KILLER MODE</b><br>
-        <small id="killerStatus" style="color:var(--text-dim)">Anti-Loss Logic Active</small>
+        <b style="color:var(--green)"><i class="fas fa-microchip"></i> KILLER ENGINE ACTIVE</b><br>
+        <small id="killerPrediction" class="blink" style="color:var(--primary)">Analyzing Market Risk...</small>
     </div>
-    <label class="switch">
-        <input type="checkbox" id="killerToggle" onchange="toggleKiller()">
-        <span class="slider"></span>
-    </label>
+    <div style="text-align: right;">
+        <small style="color:var(--text-dim); font-size: 10px;">PRO LOGIC</small><br>
+        <i class="fas fa-check-circle" style="color:var(--green)"></i>
+    </div>
 </div>
 
 <div class="tab-bar">
-    <button class="tab-btn active" onclick="switchTab('wingo', this)">GAME CONTROL</button>
-    <button class="tab-btn" onclick="switchTab('users', this)">PLAYER LIST</button>
+    <button class="tab-btn active" onclick="switchTab('wingo', this)">CONTROL</button>
+    <button class="tab-btn" onclick="switchTab('users', this)">PLAYERS</button>
     <button class="tab-btn" onclick="switchTab('reqs', this)">PAYMENTS</button>
 </div>
 
 <div class="container">
     <div id="sec-wingo" class="section active">
-        <div style="display:flex; justify-content: space-between; align-items:center; margin-bottom:15px; background: #161d33; padding: 15px; border-radius: 12px; border: 1px solid #2d3748;">
-            <div><small style="color:var(--text-dim)">PERIOD</small><br><b id="periodId" style="font-size: 15px;">...</b></div>
-            <div style="text-align:right"><small style="color:var(--text-dim)">TIME LEFT</small><br><b id="timer" style="font-size:28px; color:var(--primary)">00s</b></div>
+        <div style="display:flex; justify-content: space-between; align-items:center; margin-bottom:15px; background: #161d33; padding: 12px; border-radius: 12px; border: 1px solid #2d3748;">
+            <div><small style="color:var(--text-dim)">PERIOD</small><br><b id="periodId" style="color:var(--blue)">-</b></div>
+            <div style="text-align:right"><small style="color:var(--text-dim)">TIMER</small><br><b id="timer" style="font-size:24px; color:var(--red)">00s</b></div>
         </div>
 
         <div class="color-row">
@@ -99,31 +90,24 @@
         </div>
         <div class="grid-nums" id="numGrid"></div>
 
-        <div style="background: #111827; padding: 20px; border-radius: 15px; margin-top: 20px; border-top: 3px solid var(--blue);">
-            <div class="p-row"><span>Total Green:</span><b id="statG" style="color:var(--green)">₹0</b></div>
-            <div class="p-row"><span>Total Red:</span><b id="statR" style="color:var(--red)">₹0</b></div>
-            <div class="p-row"><span>Total Violet:</span><b id="statV" style="color:var(--violet)">₹0</b></div>
-            <hr style="border:0; border-top:1px solid #2d3748; margin:12px 0;">
-            <div style="display:block; justify-content:space-between; align-items:center;">
-                <span style="font-size:12px; font-weight:bold; color:var(--blue)">SMART ADVICE:</span><br>
-                <div id="safeAdvice" class="waiting-blink">WAITING FOR PLAYER BETS...</div>
-                <div id="numberAdvice" style="margin-top:10px; font-size:13px; color:var(--primary);"></div>
-            </div>
+        <div style="background: #111827; padding: 15px; border-radius: 12px; margin-top: 15px; border-top: 3px solid var(--primary);">
+            <div id="safeAdvice" class="blink" style="color:var(--green); font-weight: bold; font-size: 14px;">SCANNING BETS...</div>
+            <div id="numberAdvice" style="margin-top:5px; font-size:12px; color:var(--text-dim);">System ready.</div>
         </div>
-        <button onclick="db.ref('gameControl/manualResult').set('none')" style="width:100%; margin-top:15px; padding:15px; background:#1e293b; color:white; border:0; border-radius:10px; font-weight:bold; letter-spacing: 1px;">RESET TO AUTO MODE</button>
+        <button onclick="resetAuto()" style="width:100%; margin-top:10px; padding:12px; background:#1e293b; color:white; border:0; border-radius:8px; font-size:12px; font-weight: bold;">RESET TO SMART AUTO</button>
     </div>
 
     <div id="sec-users" class="section">
-        <input type="text" id="uSearch" placeholder="Search by Phone Number..." style="width:100%; padding:14px; background:var(--card); border:1px solid #333; color:white; border-radius:10px; margin-bottom:15px;">
+        <input type="text" id="uSearch" placeholder="🔍 Search Phone or ID..." oninput="searchUser()">
         <div id="userList"></div>
     </div>
 
     <div id="sec-reqs" class="section">
-        <div class="pay-nav">
-            <button style="background:var(--green)" onclick="filterPay('dep')">DEPOSIT REQ</button>
-            <button style="background:var(--red)" onclick="filterPay('wit')">WITHDRAW REQ</button>
+        <div style="display:flex; gap:10px; margin-bottom:15px;">
+            <button id="pBtnDep" class="btn-action" style="background:var(--green); flex:1" onclick="setPayTab('recharge')">DEPOSITS</button>
+            <button id="pBtnWit" class="btn-action" style="background:var(--red); flex:1" onclick="setPayTab('withdrawal')">WITHDRAWS</button>
         </div>
-        <div id="payList"></div>
+        <div id="payList"><center style="color:var(--text-dim)">No pending requests</center></div>
     </div>
 </div>
 
@@ -132,17 +116,16 @@
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    let currentTimer = 30;
-    let lastNumber = -1; // 2. Anti-repeat check
-
-    const trends = [['G','R','G','R'], ['G','G','R','R'], ['G','R','R','G'], ['R','R','R','G']];
-    let activeTrend = trends[Math.floor(Math.random()*trends.length)];
+    let manualFixed = "none";
+    let allPlayers = [];
+    let activePayTab = 'recharge';
 
     function switchTab(id, el) {
         document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         document.getElementById('sec-'+id).classList.add('active');
         el.classList.add('active');
+        if(id === 'reqs') loadPayReqs();
     }
 
     function initAdmin() {
@@ -155,420 +138,192 @@
 
         setInterval(() => {
             const now = new Date();
-            currentTimer = 30 - (now.getSeconds() % 30);
-            document.getElementById('timer').innerText = currentTimer + "s";
+            let timer = 30 - (now.getSeconds() % 30);
+            document.getElementById('timer').innerText = timer + "s";
             document.getElementById('liveClock').innerText = now.toLocaleTimeString();
+            
             let pStr = now.getFullYear().toString() + (now.getMonth()+1).toString().padStart(2,'0') + now.getDate().toString().padStart(2,'0');
             let round = Math.floor((now.getHours()*120) + (now.getMinutes()*2) + (now.getSeconds()/30));
             document.getElementById('periodId').innerText = pStr + (1000 + round);
-            if(currentTimer === 3) runKillerEngine();
+
+            if(timer === 2) runKillerEngine(); 
         }, 1000);
 
         syncData();
+        syncPlayers();
     }
 
     function syncData() {
         db.ref('gameControl/wingo/liveBets').on('value', snap => {
             const bets = snap.val() || {};
             let g = Number(bets.Green || 0), r = Number(bets.Red || 0), v = Number(bets.Violet || 0);
-            
             document.getElementById('sumGreen').innerText = "₹"+g;
             document.getElementById('sumRed').innerText = "₹"+r;
             document.getElementById('sumViolet').innerText = "₹"+v;
-            document.getElementById('statG').innerText = "₹"+g;
-            document.getElementById('statR').innerText = "₹"+r;
-            document.getElementById('statV').innerText = "₹"+v;
-
-            // 5. Red Blinking for Colors
-            document.getElementById('btnGreen').classList.toggle('bet-active-blink', g > 0);
-            document.getElementById('btnRed').classList.toggle('bet-active-blink', r > 0);
-            document.getElementById('btnViolet').classList.toggle('bet-active-blink', v > 0);
-
-            let numList = [];
+            let costs = [];
             for(let i=0; i<=9; i++) {
                 let nAmt = Number(bets['num'+i] || 0);
                 document.getElementById('vn'+i).innerText = "₹"+nAmt;
-                // 5. Red Blinking for Numbers
+                let cost = (nAmt * 9); 
+                if(i === 0) cost += (v * 4.5) + (r * 1.5);
+                else if(i === 5) cost += (v * 4.5) + (g * 1.5);
+                else if(i % 2 === 0) cost += (r * 2);
+                else cost += (g * 2);
+                costs.push({ id: i, totalPayout: cost });
                 document.getElementById('n'+i).classList.toggle('bet-active-blink', nAmt > 0);
-                numList.push({id: i, amt: nAmt});
             }
-
-            let adv = document.getElementById('safeAdvice');
-            let nAdv = document.getElementById('numberAdvice');
-            
-            if(g+r+v + numList.reduce((a,b)=>a+b.amt, 0) === 0) {
-                adv.innerText = "WAITING FOR PLAYER BETS...";
-                adv.className = "waiting-blink";
-                nAdv.innerText = "";
+            let totalBets = g + r + v + costs.reduce((a, b) => a + b.totalPayout, 0);
+            if(totalBets === 0) {
+                document.getElementById('killerPrediction').innerText = "NO BETS: RANDOM MODE";
+                document.getElementById('safeAdvice').innerText = "WAITING FOR PLAYER BETS...";
             } else {
-                adv.className = "";
-                // 7. If two colors equal, target third
-                if (g === r && g > 0) adv.innerText = "TARGET: VIOLET (Equal Red/Green)";
-                else if (g === v && g > 0) adv.innerText = "TARGET: RED (Equal Green/Violet)";
-                else if (r === v && r > 0) adv.innerText = "TARGET: GREEN (Equal Red/Violet)";
-                else adv.innerText = (g < r) ? "TARGET: GREEN" : "TARGET: RED";
-                
-                // 8. Number Advice Section
-                numList.sort((a,b) => a.amt - b.amt);
-                nAdv.innerText = "SAFE NUMBERS: " + numList[0].id + ", " + numList[1].id;
+                costs.sort((a,b) => a.totalPayout - b.totalPayout);
+                let bestNum = costs[0].id;
+                let bestCol = (bestNum==0||bestNum==5)?'VIOLET':(bestNum%2==0?'RED':'GREEN');
+                document.getElementById('killerPrediction').innerText = `PREDICTION: ${bestCol} (${bestNum})`;
+                document.getElementById('safeAdvice').innerHTML = `🔥 KILLER CHOICE: <span style="color:var(--primary)">${bestCol}</span>`;
             }
         });
-
-        db.ref('users').on('value', snap => {
-            let h = "";
-            snap.forEach(child => {
-                let u = child.val();
-                h += `<div class="player-card">
-                    <div class="p-row"><span style="color:var(--primary); font-size:16px;">${u.username || 'User'}</span> <span class="p-val" style="color:var(--green)">₹${Number(u.balance || 0).toFixed(2)}</span></div>
-                    <div class="p-row"><span class="p-label">Phone:</span> <span class="p-val">${u.phone || 'N/A'}</span></div>
-                    <div style="margin-top:10px; display:flex; gap:10px;">
-                        <button class="btn-edit" onclick="editBal('${u.phone}')">EDIT BAL</button>
-                    </div>
-                </div>`;
-            });
-            document.getElementById('userList').innerHTML = h || "<center>No Players Found</center>";
-        });
-
-        db.ref('admin_settings/killerMode').on('value', s => { document.getElementById('killerToggle').checked = s.val(); });
         db.ref('gameControl/manualResult').on('value', s => {
+            manualFixed = s.val() || "none";
             document.querySelectorAll('.num-btn, .c-btn').forEach(el => el.classList.remove('fix-active'));
-            let v = s.val();
-            if(v === 'Green') document.getElementById('btnGreen').classList.add('fix-active');
-            else if(v === 'Red') document.getElementById('btnRed').classList.add('fix-active');
-            else if(v === 'Violet') document.getElementById('btnViolet').classList.add('fix-active');
-            else if(v !== 'none' && v !== null) document.getElementById('n'+v)?.classList.add('fix-active');
+            if(manualFixed !== "none") {
+                if(isNaN(manualFixed)) document.getElementById('btn'+manualFixed)?.classList.add('fix-active');
+                else document.getElementById('n'+manualFixed)?.classList.add('fix-active');
+            }
         });
     }
 
-    // 4. Advanced Killer Mode & 9. Combined Payout Logic
     async function runKillerEngine() {
-        const isK = (await db.ref('admin_settings/killerMode').once('value')).val();
-        if(!isK) return;
+        if(manualFixed !== "none") return;
         const snap = await db.ref('gameControl/wingo/liveBets').once('value');
         const b = snap.val() || {};
-        
         let g = Number(b.Green || 0), r = Number(b.Red || 0), v = Number(b.Violet || 0);
-        let numberScores = [];
-
-        for(let i=0; i<=9; i++){
+        let costs = [];
+        for(let i=0; i<=9; i++) {
             let nAmt = Number(b['num'+i] || 0);
-            // 9. Multiplier logic: Number (x9), Color (x2), Violet (x4.5)
-            let risk = (nAmt * 9); 
-            if(i===0) risk += (v*4.5) + (r*1.5);
-            else if(i===5) risk += (v*4.5) + (g*1.5);
-            else if(i%2===0) risk += (r*2);
-            else risk += (g*2);
-
-            // 2. Anti-repeat check
-            if(i === lastNumber) risk += 100000; 
-
-            // 6. If all equal, avoid violet (0/5)
-            if(g===r && r===v && g > 0 && (i===0 || i===5)) risk += 50000;
-
-            numberScores.push({id: i, score: risk});
+            let payout = (nAmt * 9);
+            if(i === 0) payout += (v * 4.5) + (r * 1.5);
+            else if(i === 5) payout += (v * 4.5) + (g * 1.5);
+            else if(i % 2 === 0) payout += (r * 2);
+            else payout += (g * 2);
+            costs.push({id: i, cost: payout});
         }
-
-        // 1. Lowest score wins
-        numberScores.sort((a,b) => a.score - b.score);
-        let finalNum = numberScores[0].id;
-        
-        lastNumber = finalNum;
-        db.ref('gameControl/manualResult').set(finalNum);
+        if(g + r + v + costs.reduce((a,b)=>a+b.cost, 0) === 0) {
+            let rand = [1,2,3,4,6,7,8,9];
+            let pick = rand[Math.floor(Math.random() * rand.length)];
+            db.ref('gameControl/manualResult').set(pick);
+        } else {
+            costs.sort((a,b) => a.cost - b.cost);
+            db.ref('gameControl/manualResult').set(costs[0].id);
+        }
     }
 
-    function toggleKiller() { db.ref('admin_settings/killerMode').set(document.getElementById('killerToggle').checked); }
-    function manualFix(v) { db.ref('gameControl/manualResult').set(v); }
-    function editBal(ph) { let b = prompt("New Bal:"); if(b) db.ref('users/'+ph).update({ balance: Number(b) }); }
-</script>
-<script>
-    // 1. PLAYER LIST SYSTEM (With Search & Full Details)
-    function syncUserList() {
-        const userDiv = document.getElementById('userList');
-        const searchInput = document.getElementById('uSearch');
-
+    function syncPlayers() {
         db.ref('users').on('value', snap => {
-            let html = "";
-            let players = [];
+            allPlayers = [];
             snap.forEach(child => {
                 let u = child.val();
-                u.uid = child.key; // Unique ID save karo
-                players.push(u);
+                u.phoneKey = child.key; // Isme number (8081...) save hoga
+                allPlayers.push(u);
             });
-
-            const render = (data) => {
-                html = "";
-                data.forEach(u => {
-                    html += `
-                    <div class="player-card" style="border-left:4px solid var(--blue);">
-                        <div class="p-row">
-                            <span style="color:var(--primary); font-size:16px; font-weight:bold;">${u.username || 'No Name'}</span> 
-                            <span class="p-val" style="color:var(--green)">₹${Number(u.balance || 0).toFixed(2)}</span>
-                        </div>
-                        <div class="p-row"><span class="p-label">Phone:</span> <span class="p-val">${u.phone || 'N/A'}</span></div>
-                        <div class="p-row"><span class="p-label">UID:</span> <span class="p-val">${u.uid}</span></div>
-                        <div class="p-row"><span class="p-label">Pass:</span> <span class="p-val" style="color:var(--primary)">${u.password || '****'}</span></div>
-                        <div class="p-row">
-                            <span class="p-label">Total Dep: <b style="color:var(--green)">₹${u.total_recharge || 0}</b></span>
-                            <span class="p-label">Total Wit: <b style="color:var(--red)">₹${u.total_withdrawal || 0}</b></span>
-                        </div>
-                        <div style="margin-top:10px; display:flex; gap:10px;">
-                            <button class="btn-edit" onclick="editBal('${u.phone}')">EDIT BAL</button>
-                            <button class="btn-edit" style="background:#dc3545" onclick="deleteUser('${u.uid}')"><i class="fas fa-trash"></i></button>
-                        </div>
-                    </div>`;
-                });
-                userDiv.innerHTML = html || "<center>No Players Found</center>";
-            };
-
-            render(players);
-
-            // Search Logic
-            if(searchInput) {
-                searchInput.oninput = () => {
-                    let filtered = players.filter(p => p.phone.includes(searchInput.value));
-                    render(filtered);
-                };
-            }
+            renderUserList(allPlayers);
         });
     }
 
-    // 2. PAYMENT REQUEST SYSTEM (Recharge & Withdraw)
-    function filterPay(type) {
-        const payDiv = document.getElementById('payList');
-        payDiv.innerHTML = "<center><i class='fas fa-spinner fa-spin'></i> Fetching Requests...</center>";
-        
-        // Accurate Database Paths
-        const path = type === 'dep' ? 'requests/recharge' : 'requests/withdrawal';
-        
-        db.ref(path).on('value', snap => {
+    function renderUserList(list) {
+        let h = "";
+        list.forEach(u => {
+            h += `<div class="player-card">
+                <div class="p-row"><span class="p-label">Name:</span> <span class="p-val" style="color:var(--primary)">${u.username || 'User'}</span></div>
+                <div class="p-row"><span class="p-label">Phone:</span> <span class="p-val">${u.phone || u.phoneKey}</span></div>
+                <div class="p-row"><span class="p-label">Pass:</span> <span class="p-val" style="color:var(--green)">${u.password}</span></div>
+                <div class="p-row"><span class="p-label">UID:</span> <span class="p-val" style="font-size:10px;">${u.uid || u.phoneKey}</span></div>
+                <div class="p-row" style="border-top:1px solid #2d3748; padding-top:5px; margin-top:5px;">
+                    <span class="p-label">Balance:</span> <b style="color:var(--primary)">₹${Number(u.balance).toFixed(2)}</b>
+                </div>
+                <div style="margin-top:10px; display:flex; gap:10px;">
+                    <button class="btn-action" style="background:var(--blue); flex:1" onclick="editBal('${u.phoneKey}')">EDIT BALANCE</button>
+                    <button class="btn-action" style="background:var(--red)" onclick="delUser('${u.phoneKey}')"><i class="fas fa-trash"></i></button>
+                </div>
+            </div>`;
+        });
+        document.getElementById('userList').innerHTML = h || "<center>No players found</center>";
+    }
+
+    function searchUser() {
+        let val = document.getElementById('uSearch').value.toLowerCase();
+        let filtered = allPlayers.filter(p => (p.phoneKey && p.phoneKey.includes(val)) || (p.username && p.username.toLowerCase().includes(val)));
+        renderUserList(filtered);
+    }
+
+    function manualFix(v) { db.ref('gameControl/manualResult').set(v); }
+    function resetAuto() { db.ref('gameControl/manualResult').set('none'); }
+    function editBal(id) { 
+        let b = prompt("Enter new balance:"); 
+        if(b !== null) db.ref('users/'+id).update({balance: Number(b)}); 
+    }
+    function delUser(id) { if(confirm("Delete user?")) db.ref('users/'+id).remove(); }
+
+    // --- PAYMENTS FIXED LOGIC ---
+    function setPayTab(t) {
+        activePayTab = t;
+        document.getElementById('pBtnDep').style.opacity = (t==='recharge') ? '1' : '0.5';
+        document.getElementById('pBtnWit').style.opacity = (t==='withdrawal') ? '1' : '0.5';
+        loadPayReqs();
+    }
+
+    function loadPayReqs() {
+        const listDiv = document.getElementById('payList');
+        db.ref('requests').on('value', snap => {
             let html = "";
-            let found = false;
-            
-            snap.forEach(child => {
-                let d = child.val();
-                // Status 0 or 'pending' means new request
-                if(d && (d.status === 0 || d.status === 'pending')) {
-                    found = true;
-                    html += `
-                    <div class="player-card" style="border-left:4px solid ${type==='dep'?'var(--green)':'var(--red)'};">
-                        <div class="p-row">
-                            <b style="font-size:16px;">${type==='dep' ? 'RECHARGE' : 'WITHDRAWAL'}</b> 
-                            <b style="color:var(--primary); font-size:18px;">₹${d.amount}</b>
-                        </div>
-                        <div class="p-row"><span class="p-label">User Phone:</span> <span class="p-val">${d.phone || d.userId}</span></div>
-                        <div class="p-row"><span class="p-label">UTR/Ref:</span> <span class="p-val">${d.utr || d.txn_id || 'N/A'}</span></div>
-                        <div class="p-row"><span class="p-label">Time:</span> <span class="p-val">${d.date || 'Today'}</span></div>
-                        
-                        <div style="margin-top:12px; display:flex; gap:10px;">
-                            <button class="btn-edit" style="background:var(--green); flex:1;" onclick="handleAction('${path}', '${child.key}', 'approved', ${d.amount}, '${d.phone}')">APPROVE</button>
-                            <button class="btn-edit" style="background:var(--red); flex:1;" onclick="handleAction('${path}', '${child.key}', 'rejected', 0, '${d.phone}')">REJECT</button>
-                        </div>
-                    </div>`;
-                }
-            });
-            payDiv.innerHTML = found ? html : `<center style="color:var(--text-dim); padding:20px;">No Pending ${type==='dep'?'Deposits':'Withdrawals'}</center>`;
-        });
-    }
+            let foundData = false;
+            const allReqs = snap.val();
+            if(!allReqs) return listDiv.innerHTML = "<center>No requests</center>";
 
-    // 3. ACTION HANDLER (Balance Auto-Update)
-    async function handleAction(path, requestId, status, amount, phone) {
-        try {
-            if(status === 'approved' && amount > 0 && path.includes('recharge')) {
-                // Balance update logic for recharge
-                const userRef = db.ref('users/' + phone);
-                const currentBal = (await userRef.once('value')).val().balance || 0;
-                await userRef.update({ balance: Number(currentBal) + Number(amount) });
-            }
-            
-            // Mark Request as Finished
-            await db.ref(path + '/' + requestId).update({ status: status });
-            alert("Request " + status.toUpperCase() + " Successfully!");
-        } catch (e) {
-            alert("Error: " + e.message);
-        }
-    }
-
-    // Initialize these along with your killer engine
-    function initExtraSystems() {
-        syncUserList();
-        // Default load deposits
-        filterPay('dep');
-    }
-    
-    // Call this in your window.onload
-    window.addEventListener('load', initExtraSystems);
-</script>
-<script>
-    // --- JALWA PRO DEEP CRAWLER (ALL-FOLDER SCANNER) ---
-    async function filterPay(type) {
-        const payDiv = document.getElementById('payList');
-        payDiv.innerHTML = "<center style='padding:40px;'><i class='fas fa-sync fa-spin'></i> DEEP SCANNING DATABASE...</center>";
-        
-        let found = false;
-        let html = "";
-
-        // Pura database ek baar fetch karo (Sirf pending requests ke liye)
-        // Note: Agar database bahut bada hai toh paths specify karna behtar hai
-        const allPaths = ['requests', 'payments', 'recharge', 'withdraw', 'deposits', 'all_recharge'];
-
-        for (let root of allPaths) {
-            await db.ref(root).once('value', (snapshot) => {
-                if (!snapshot.exists()) return;
-
-                // Recursive function jo har kone mein check karegi
-                snapshot.forEach(child => {
-                    // Agar folder ke andar phone numbers hain (Nested structure)
-                    child.forEach(item => {
-                        let d = item.val();
-                        // Agar direct data hai ya nested
-                        if (!d.status) d = item.val(); 
-
-                        if (d && (d.status == 'pending' || d.status == 0 || d.status == '0')) {
-                            // Filter for Deposit/Withdraw
-                            const isDeposit = (root.includes('recharge') || root.includes('deposit') || d.type == 'recharge');
+            Object.keys(allReqs).forEach(folder => {
+                let isMatch = (activePayTab === 'recharge' && /recharge|dep/i.test(folder)) || 
+                              (activePayTab === 'withdrawal' && /withdraw/i.test(folder));
+                
+                if(isMatch) {
+                    let items = allReqs[folder];
+                    Object.keys(items).forEach(id => {
+                        let d = items[id];
+                        if(d.status === 'pending' || !d.status) {
+                            foundData = true;
                             
-                            if ((type === 'dep' && isDeposit) || (type === 'wit' && !isDeposit)) {
-                                found = true;
-                                html += `
-                                <div class="player-card" style="border-left:5px solid ${type==='dep'?'#00c853':'#ff3d00'}; margin-bottom:15px; background:#10142d; padding:15px; border-radius:12px;">
-                                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                                        <b style="color:var(--primary)">₹${d.amount}</b>
-                                        <small style="opacity:0.5; font-size:9px;">Path: ${root}/${child.key}</small>
-                                    </div>
-                                    <div style="margin:10px 0; font-size:12px;">
-                                        <div>Phone: <b>${d.phone || d.userId || child.key}</b></div>
-                                        <div>UTR: <b>${d.utr || 'N/A'}</b></div>
-                                    </div>
-                                    <div style="display:flex; gap:8px;">
-                                        <button class="btn-edit" style="background:#00c853; flex:1;" onclick="finalForceAction('${root}/${child.key}/${item.key}', 'approved', ${d.amount}, '${d.phone || d.userId || child.key}')">APPROVE</button>
-                                        <button class="btn-edit" style="background:#ff3d00; flex:1;" onclick="finalForceAction('${root}/${child.key}/${item.key}', 'rejected', 0, '')">REJECT</button>
-                                    </div>
-                                </div>`;
-                            }
+                            // Aggressive User Matching
+                            let reqUid = d.uid || d.userId;
+                            let player = allPlayers.find(p => p.uid === reqUid || p.phoneKey === reqUid) || {};
+                            let pName = player.phoneKey || player.username || reqUid || "Unknown";
+
+                            html += `<div class="player-card" style="border-left:5px solid ${activePayTab==='recharge'?'var(--green)':'var(--red)'}">
+                                <div class="p-row"><b>₹${d.amount}</b> <small style="opacity:0.5">${folder}</small></div>
+                                <div style="margin:10px 0; color:#fff;">
+                                    <div style="font-size:16px; font-weight:bold; color:var(--primary)"><i class="fas fa-user-circle"></i> ${pName}</div>
+                                    <div style="font-size:9px; opacity:0.4;">UID: ${reqUid}</div>
+                                </div>
+                                ${d.utr ? `<div style="background:#000; padding:8px; border-radius:5px; margin-bottom:10px; color:var(--blue); font-size:12px; border:1px solid #222; font-weight:bold;">UTR: ${d.utr}</div>` : ''}
+                                <div style="display:flex; gap:10px;">
+                                    <button class="btn-action" style="background:var(--green); flex:1; padding:12px;" onclick="handlePay('${folder}/${id}','${player.phoneKey || reqUid}',${d.amount},'approved')">APPROVE</button>
+                                    <button class="btn-action" style="background:var(--red); flex:1; padding:12px;" onclick="handlePay('${folder}/${id}','${player.phoneKey || reqUid}',${d.amount},'rejected')">REJECT</button>
+                                </div>
+                            </div>`;
                         }
                     });
-                });
+                }
             });
+            listDiv.innerHTML = foundData ? html : "<center>No pending "+activePayTab+"</center>";
+        });
+    }
+
+    async function handlePay(path, userKey, amt, status) {
+        await db.ref('requests/' + path).update({ status: status });
+        if(status === 'approved' && activePayTab === 'recharge') {
+            db.ref('users/' + userKey + '/balance').transaction(c => (Number(c) || 0) + Number(amt));
+        } else if(status === 'rejected' && activePayTab === 'withdrawal') {
+            db.ref('users/' + userKey + '/balance').transaction(c => (Number(c) || 0) + Number(amt));
         }
-
-        payDiv.innerHTML = found ? html : "<center style='padding:50px;'>No Pending Requests Found.<br><small>Firebase mein 'status' check karein.</small></center>";
-    }
-
-    async function finalForceAction(fullPath, status, amount, uid) {
-        if(!confirm("Confirm " + status + "?")) return;
-        try {
-            // 1. Status Update
-            await db.ref(fullPath).update({ status: status });
-            
-            // 2. Balance Update (For Recharge)
-            if (status === 'approved' && amount > 0) {
-                // UID/Phone dono check karega
-                const userRef = db.ref('users/' + uid);
-                const uSnap = await userRef.once('value');
-                if (uSnap.exists()) {
-                    let b = Number(uSnap.val().balance || 0) + Number(amount);
-                    await userRef.update({ balance: b });
-                }
-            }
-            alert("Done!");
-            location.reload();
-        } catch(e) { alert(e.message); }
-    }
-</script>
-<script>
-    // --- JALWA PRO AUTO-PATH DETECTOR ---
-    let currentMode = 'dep';
-
-    async function filterPay(type) {
-        currentMode = type;
-        const payDiv = document.getElementById('payList');
-        payDiv.innerHTML = "<center style='padding:40px;'><i class='fas fa-satellite-dish fa-spin'></i> SCANNING NESTED FOLDERS...</center>";
-        
-        let htmlContent = "";
-        let found = false;
-
-        // Aapke Firebase ke main folders jahan data ho sakta hai
-        const roots = ['recharge', 'withdrawal', 'requests', 'payments', 'deposits'];
-
-        for (let root of roots) {
-            const snap = await db.ref(root).once('value');
-            if (!snap.exists()) continue;
-
-            const rootData = snap.val();
-
-            // Loop 1: Folder ke andar (e.g., 'recharge')
-            for (let key1 in rootData) {
-                const level1 = rootData[key1];
-
-                // Check if this is the record or another folder (Phone Number)
-                if (level1.status !== undefined) {
-                    // Direct Record found
-                    if (isMatching(level1, type)) {
-                        found = true;
-                        htmlContent += renderCard(`${root}/${key1}`, level1, type);
-                    }
-                } else {
-                    // Loop 2: Nested Folder (e.g., 'recharge/9876543210/push_id')
-                    for (let key2 in level1) {
-                        const level2 = level1[key2];
-                        if (level2 && (level2.status == 'pending' || level2.status == 0)) {
-                            if (isMatching(level2, type)) {
-                                found = true;
-                                htmlContent += renderCard(`${root}/${key1}/${key2}`, level2, type);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        payDiv.innerHTML = found ? htmlContent : `<center style="padding:50px; color:#555;">No Pending Requests Found.<br><small>Firebase URL Linked: ${firebaseConfig.databaseURL}</small></center>`;
-    }
-
-    function isMatching(data, type) {
-        // Pending status check
-        if (data.status != 'pending' && data.status != 0) return false;
-        // Type check (Recharge vs Withdrawal)
-        if (type === 'dep') {
-            return data.type === 'recharge' || data.amount > 0; // Adjust as per your data
-        } else {
-            return data.type === 'withdrawal' || data.bankName !== undefined;
-        }
-    }
-
-    function renderCard(fullPath, d, type) {
-        return `
-        <div class="player-card" style="border-left:5px solid ${type==='dep'?'#00c853':'#ff3d00'}; margin-bottom:15px; background:#10142d; padding:15px; border-radius:12px;">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-                <b style="color:var(--primary); font-size:18px;">₹${d.amount}</b>
-                <small style="opacity:0.4; font-size:9px;">${fullPath}</small>
-            </div>
-            <div style="margin:10px 0; font-size:12px; color:#a4b0be;">
-                <div>Phone: <b style="color:#fff">${d.phone || d.userId || 'User'}</b></div>
-                <div>UTR: <b style="color:#fff">${d.utr || d.txn_id || 'N/A'}</b></div>
-            </div>
-            <div style="display:flex; gap:8px;">
-                <button class="btn-edit" style="background:#00c853; flex:1;" onclick="executeAction('${fullPath}', 'approved', ${d.amount}, '${d.phone || d.userId}')">APPROVE</button>
-                <button class="btn-edit" style="background:#ff3d00; flex:1;" onclick="executeAction('${fullPath}', 'rejected', 0, '')">REJECT</button>
-            </div>
-        </div>`;
-    }
-
-    async function executeAction(path, status, amount, uid) {
-        if(!confirm("Are you sure?")) return;
-        try {
-            await db.ref(path).update({ status: status });
-            if (status === 'approved' && amount > 0) {
-                // Try to update balance in 'users' folder
-                const userRef = db.ref('users/' + uid);
-                const uSnap = await userRef.once('value');
-                if (uSnap.exists()) {
-                    await userRef.update({ balance: Number(uSnap.val().balance || 0) + Number(amount) });
-                }
-            }
-            alert("Action Successful!");
-            filterPay(currentMode);
-        } catch(e) { alert("Error: " + e.message); }
     }
 </script>
 </body>
